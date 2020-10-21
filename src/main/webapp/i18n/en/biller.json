@@ -1,0 +1,28 @@
+{
+  "apiGatewayApp": {
+    "biller": {
+      "home": {
+        "title": "Billers",
+        "createLabel": "Create a new Biller",
+        "createOrEditLabel": "Create or edit a Biller",
+        "notFound": "No Billers found"
+      },
+      "created": "A new Biller is created with identifier {{ param }}",
+      "updated": "A Biller is updated with identifier {{ param }}",
+      "deleted": "A Biller is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Biller {{ id }}?"
+      },
+      "detail": {
+        "title": "Biller"
+      },
+      "billerID": "Biller ID",
+      "biller": "Biller",
+      "address": "Address",
+      "phoneNumber": "Phone Number",
+      "customersubscription": "Customersubscription",
+      "billerPlatform": "Biller Platform",
+      "billerCategory": "Biller Category"
+    }
+  }
+}

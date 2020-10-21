@@ -1,0 +1,42 @@
+{
+  "name": "BillerTransaction",
+  "fields": [
+    {
+      "fieldName": "billertransID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "transactionRef",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "narration",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "Double"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "profile",
+      "otherEntityRelationshipName": "billerTransaction",
+      "relationshipName": "phoneNumber",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20201013100813",
+  "entityTableName": "biller_transaction",
+  "dto": "mapstruct",
+  "pagination": "pagination",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

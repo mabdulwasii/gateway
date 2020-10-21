@@ -1,0 +1,24 @@
+{
+  "apiGatewayApp": {
+    "scheme": {
+      "home": {
+        "title": "Schemes",
+        "createLabel": "Create a new Scheme",
+        "createOrEditLabel": "Create or edit a Scheme",
+        "notFound": "No Schemes found"
+      },
+      "created": "A new Scheme is created with identifier {{ param }}",
+      "updated": "A Scheme is updated with identifier {{ param }}",
+      "deleted": "A Scheme is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Scheme {{ id }}?"
+      },
+      "detail": {
+        "title": "Scheme"
+      },
+      "schemeID": "Scheme ID",
+      "scheme": "Scheme",
+      "schemeCategory": "Scheme Category"
+    }
+  }
+}

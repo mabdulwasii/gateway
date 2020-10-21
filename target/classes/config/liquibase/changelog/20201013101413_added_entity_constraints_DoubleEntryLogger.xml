@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity DoubleEntryLogger.
+    -->
+    <changeSet id="20201013101413-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="debit_id"
+                                 baseTableName="double_entry_logger"
+                                 constraintName="fk_double_entry_logger_debit_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="countrol_account"/>
+
+        <addForeignKeyConstraint baseColumnNames="credit_id"
+                                 baseTableName="double_entry_logger"
+                                 constraintName="fk_double_entry_logger_credit_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="countrol_account"/>
+
+    </changeSet>
+</databaseChangeLog>

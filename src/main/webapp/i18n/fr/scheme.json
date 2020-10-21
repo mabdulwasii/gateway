@@ -1,0 +1,24 @@
+{
+  "apiGatewayApp": {
+    "scheme": {
+      "home": {
+        "title": "Schemes",
+        "createLabel": "Créer un nouveau Scheme",
+        "createOrEditLabel": "Créer ou éditer un Scheme",
+        "notFound": "Aucun Scheme trouvé"
+      },
+      "created": "Un nouveau Scheme a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Scheme avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Scheme avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Scheme {{ id }} ?"
+      },
+      "detail": {
+        "title": "Scheme"
+      },
+      "schemeID": "Scheme ID",
+      "scheme": "Scheme",
+      "schemeCategory": "Scheme Category"
+    }
+  }
+}

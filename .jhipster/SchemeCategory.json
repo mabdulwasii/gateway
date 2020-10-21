@@ -1,0 +1,30 @@
+{
+  "name": "SchemeCategory",
+  "fields": [
+    {
+      "fieldName": "schemecategoryID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "schemeCategory",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20201013100613",
+  "entityTableName": "scheme_category",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

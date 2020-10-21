@@ -1,0 +1,103 @@
+{
+  "name": "Kyclevel",
+  "fields": [
+    {
+      "fieldName": "kycID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "kyc",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "kycLevel",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "phoneNumber",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "emailAddress",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "firstName",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "lastName",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "dateofBirth",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "address",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "photoUpload",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "verifiedBVN",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "verifiedValidID",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "evidenceofAddress",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "verificationofAddress",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "employmentDetails",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "dailyTransactionLimit",
+      "fieldType": "Double"
+    },
+    {
+      "fieldName": "cumulativeBalanceLimit",
+      "fieldType": "Double"
+    },
+    {
+      "fieldName": "paymentTransaction",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "billerTransaction",
+      "fieldType": "Boolean"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20201013100213",
+  "javadoc": "This setup different KYC Level a Customer can be in",
+  "entityTableName": "kyclevel",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

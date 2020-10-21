@@ -1,8 +1,12 @@
 package ng.com.systemspecs.apigateway.config;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,41 +14,55 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaProperties {
 
-    private String bootStrapServers = "localhost:9092";
+    @Value("${kafka.bootstrap.servers:localhost:9092}")
+    private String bootstrapServers;
 
-    private Map<String, String> consumer = new HashMap<>();
+    @Value("${kafka.polling.timeout:10000}")
+    private Integer pollingTimeout;
 
-    private Map<String, String> producer = new HashMap<>();
+    private Map<String, Map<String, Object>> consumer = new HashMap<>();
 
-    public String getBootStrapServers() {
-        return bootStrapServers;
-    }
+    private Map<String, Map<String, Object>> producer = new HashMap<>();
 
-    public void setBootStrapServers(String bootStrapServers) {
-        this.bootStrapServers = bootStrapServers;
-    }
+    @PostConstruct
+    public void init() {
 
-    public Map<String, Object> getConsumerProps() {
-        Map<String, Object> properties = new HashMap<>(this.consumer);
-        if (!properties.containsKey("bootstrap.servers")) {
-            properties.put("bootstrap.servers", this.bootStrapServers);
+        for (String consumerKey : consumer.keySet()) {
+            final Map<String, Object> properties = consumer.get(consumerKey);
+            if (!properties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG)) {
+                properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+            }
         }
-        return properties;
+
+        for (String consumerKey : producer.keySet()) {
+            final Map<String, Object> properties = producer.get(consumerKey);
+            if (!properties.containsKey(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)) {
+                properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+            }
+        }
     }
 
-    public void setConsumer(Map<String, String> consumer) {
+    public Map<String, Map<String, Object>> getConsumer() {
+        return this.consumer;
+    }
+
+    public void setConsumer(Map<String, Map<String, Object>> consumer) {
         this.consumer = consumer;
     }
 
-    public Map<String, Object> getProducerProps() {
-        Map<String, Object> properties = new HashMap<>(this.producer);
-        if (!properties.containsKey("bootstrap.servers")) {
-            properties.put("bootstrap.servers", this.bootStrapServers);
-        }
-        return properties;
+    public Map<String, Map<String, Object>> getProducer() {
+        return this.producer;
     }
 
-    public void setProducer(Map<String, String> producer) {
+    public void setProducer(Map<String, Map<String, Object>> producer) {
         this.producer = producer;
+    }
+
+    public Integer getPollingTimeout() {
+        return pollingTimeout;
+    }
+
+    public void setPollingTimeout(Integer pollingTimeout) {
+        this.pollingTimeout = pollingTimeout;
     }
 }

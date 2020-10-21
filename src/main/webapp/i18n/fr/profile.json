@@ -1,0 +1,36 @@
+{
+  "apiGatewayApp": {
+    "profile": {
+      "home": {
+        "title": "Profiles",
+        "createLabel": "Créer un nouveau Profile",
+        "createOrEditLabel": "Créer ou éditer un Profile",
+        "notFound": "Aucun Profile trouvé"
+      },
+      "created": "Un nouveau Profile a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Profile avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Profile avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Profile {{ id }} ?"
+      },
+      "detail": {
+        "title": "Profile"
+      },
+      "profileID": "Profile ID",
+      "phoneNumber": "Phone Number",
+      "gender": "Gender",
+      "dateOfBirth": "Date Of Birth",
+      "address": "Address",
+      "photo": "Photo",
+      "bvn": "Bvn",
+      "validID": "Valid ID",
+      "walletAccount": "Wallet Account",
+      "paymentTransaction": "Payment Transaction",
+      "billerTransaction": "Biller Transaction",
+      "customersubscription": "Customersubscription",
+      "user": "User",
+      "profileType": "Profile Type",
+      "kyc": "Kyc"
+    }
+  }
+}

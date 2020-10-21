@@ -5,6 +5,8 @@ import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.AuthoritiesConstants;
 import ng.com.systemspecs.apigateway.service.MailService;
+import ng.com.systemspecs.apigateway.service.ProfileService;
+
 import org.springframework.data.domain.Sort;
 import java.util.Collections;
 import ng.com.systemspecs.apigateway.service.UserService;
@@ -73,6 +75,8 @@ public class UserResource {
     private final UserRepository userRepository;
 
     private final MailService mailService;
+    
+
 
     public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
         this.userService = userService;

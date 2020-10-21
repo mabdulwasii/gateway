@@ -1,0 +1,25 @@
+{
+  "apiGatewayApp": {
+    "customersubscription": {
+      "home": {
+        "title": "Customersubscriptions",
+        "createLabel": "Créer un nouveau Customersubscription",
+        "createOrEditLabel": "Créer ou éditer un Customersubscription",
+        "notFound": "Aucun Customersubscription trouvé"
+      },
+      "created": "Un nouveau Customersubscription a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Customersubscription avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Customersubscription avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Customersubscription {{ id }} ?"
+      },
+      "detail": {
+        "title": "Customersubscription"
+      },
+      "uniqueID": "Unique ID",
+      "frequency": "Frequency",
+      "phoneNumber": "Phone Number",
+      "biller": "Biller"
+    }
+  }
+}

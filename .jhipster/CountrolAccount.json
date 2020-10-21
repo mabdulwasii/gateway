@@ -1,0 +1,26 @@
+{
+  "name": "CountrolAccount",
+  "fields": [
+    {
+      "fieldName": "countrolAccountCode",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "countrolAccountName",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20201013101313",
+  "entityTableName": "countrol_account",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

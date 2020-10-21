@@ -1,0 +1,125 @@
+package ng.com.systemspecs.apigateway.web.rest;
+
+import ng.com.systemspecs.apigateway.service.BillerTransactionService;
+import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
+import ng.com.systemspecs.apigateway.service.dto.BillerTransactionDTO;
+
+import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
+import io.github.jhipster.web.util.ResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.BillerTransaction}.
+ */
+@RestController
+@RequestMapping("/api")
+public class BillerTransactionResource {
+
+    private final Logger log = LoggerFactory.getLogger(BillerTransactionResource.class);
+
+    private static final String ENTITY_NAME = "billerTransaction";
+
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
+
+    private final BillerTransactionService billerTransactionService;
+
+    public BillerTransactionResource(BillerTransactionService billerTransactionService) {
+        this.billerTransactionService = billerTransactionService;
+    }
+
+    /**
+     * {@code POST  /biller-transactions} : Create a new billerTransaction.
+     *
+     * @param billerTransactionDTO the billerTransactionDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new billerTransactionDTO, or with status {@code 400 (Bad Request)} if the billerTransaction has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/biller-transactions")
+    public ResponseEntity<BillerTransactionDTO> createBillerTransaction(@RequestBody BillerTransactionDTO billerTransactionDTO) throws URISyntaxException {
+        log.debug("REST request to save BillerTransaction : {}", billerTransactionDTO);
+        if (billerTransactionDTO.getId() != null) {
+            throw new BadRequestAlertException("A new billerTransaction cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        BillerTransactionDTO result = billerTransactionService.save(billerTransactionDTO);
+        return ResponseEntity.created(new URI("/api/biller-transactions/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code PUT  /biller-transactions} : Updates an existing billerTransaction.
+     *
+     * @param billerTransactionDTO the billerTransactionDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated billerTransactionDTO,
+     * or with status {@code 400 (Bad Request)} if the billerTransactionDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the billerTransactionDTO couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PutMapping("/biller-transactions")
+    public ResponseEntity<BillerTransactionDTO> updateBillerTransaction(@RequestBody BillerTransactionDTO billerTransactionDTO) throws URISyntaxException {
+        log.debug("REST request to update BillerTransaction : {}", billerTransactionDTO);
+        if (billerTransactionDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        BillerTransactionDTO result = billerTransactionService.save(billerTransactionDTO);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, billerTransactionDTO.getId().toString()))
+            .body(result);
+    }
+
+    /**
+     * {@code GET  /biller-transactions} : get all the billerTransactions.
+     *
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of billerTransactions in body.
+     */
+    @GetMapping("/biller-transactions")
+    public ResponseEntity<List<BillerTransactionDTO>> getAllBillerTransactions(Pageable pageable) {
+        log.debug("REST request to get a page of BillerTransactions");
+        Page<BillerTransactionDTO> page = billerTransactionService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /biller-transactions/:id} : get the "id" billerTransaction.
+     *
+     * @param id the id of the billerTransactionDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the billerTransactionDTO, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/biller-transactions/{id}")
+    public ResponseEntity<BillerTransactionDTO> getBillerTransaction(@PathVariable Long id) {
+        log.debug("REST request to get BillerTransaction : {}", id);
+        Optional<BillerTransactionDTO> billerTransactionDTO = billerTransactionService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(billerTransactionDTO);
+    }
+
+    /**
+     * {@code DELETE  /biller-transactions/:id} : delete the "id" billerTransaction.
+     *
+     * @param id the id of the billerTransactionDTO to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/biller-transactions/{id}")
+    public ResponseEntity<Void> deleteBillerTransaction(@PathVariable Long id) {
+        log.debug("REST request to delete BillerTransaction : {}", id);
+        billerTransactionService.delete(id);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+    }
+}

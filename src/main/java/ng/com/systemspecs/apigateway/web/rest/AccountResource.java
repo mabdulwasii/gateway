@@ -4,6 +4,7 @@ import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.SecurityUtils;
 import ng.com.systemspecs.apigateway.service.MailService;
+import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.UserService;
 import ng.com.systemspecs.apigateway.service.dto.PasswordChangeDTO;
 import ng.com.systemspecs.apigateway.service.dto.UserDTO;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -41,12 +43,14 @@ public class AccountResource {
     private final UserService userService;
 
     private final MailService mailService;
-
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
+    private final ProfileService profileService;
+    public AccountResource(UserRepository userRepository, UserService userService, 
+    		MailService mailService,ProfileService profileService) {
 
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
+        this.profileService = profileService;
     }
 
     /**
@@ -59,12 +63,14 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM,HttpSession session) {
         if (!checkPasswordLength(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
         }
+        
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
+        session.setAttribute("phoneNumber", managedUserVM.getPhoneNumber());
+       // mailService.sendActivationEmail(user);
     }
 
     /**

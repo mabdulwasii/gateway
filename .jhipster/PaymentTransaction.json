@@ -1,0 +1,92 @@
+{
+  "name": "PaymentTransaction",
+  "fields": [
+    {
+      "fieldName": "paymenttransID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "transactionType",
+      "fieldType": "TransactionType",
+      "fieldValues": "BANK_ACCOUNT_TRANSFER,WALLET_TO_WALLET_TRANSFER,REQUEST_FUND"
+    },
+    {
+      "fieldName": "transactionRef",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "channel",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "currency",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sourceAccount",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sourceAccountBankCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sourceAccountName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "sourceNarration",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "destinationAccount",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "destinationAccountBankCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "destinationAccountName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "destinationNarration",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "profile",
+      "otherEntityRelationshipName": "paymentTransaction",
+      "relationshipName": "transactionOwner",
+      "otherEntityField": "phoneNumber"
+    }
+  ],
+  "changelogDate": "20201013100713",
+  "entityTableName": "payment_transaction",
+  "dto": "mapstruct",
+  "pagination": "pagination",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

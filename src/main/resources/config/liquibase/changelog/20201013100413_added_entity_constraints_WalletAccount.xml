@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity WalletAccount.
+    -->
+    <changeSet id="20201013100413-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="scheme_id"
+                                 baseTableName="wallet_account"
+                                 constraintName="fk_wallet_account_scheme_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="scheme"/>
+
+        <addForeignKeyConstraint baseColumnNames="wallet_account_type_id"
+                                 baseTableName="wallet_account"
+                                 constraintName="fk_wallet_account_wallet_account_type_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="wallet_account_type"/>
+
+        <addForeignKeyConstraint baseColumnNames="account_owner_id"
+                                 baseTableName="wallet_account"
+                                 constraintName="fk_wallet_account_account_owner_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="profile"/>
+
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,27 @@
+{
+  "name": "ProfileType",
+  "fields": [
+    {
+      "fieldName": "profiletypeID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "profiletype",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20201013100113",
+  "javadoc": "This defines different Profile Type - Customer, Agent or Admin",
+  "entityTableName": "profile_type",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}
