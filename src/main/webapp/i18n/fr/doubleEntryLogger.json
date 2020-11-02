@@ -1,0 +1,27 @@
+{
+  "apiGatewayApp": {
+    "doubleEntryLogger": {
+      "home": {
+        "title": "DoubleEntryLoggers",
+        "createLabel": "Créer un nouveau Double Entry Logger",
+        "createOrEditLabel": "Créer ou éditer un Double Entry Logger",
+        "notFound": "Aucun Double Entry Logger trouvé"
+      },
+      "created": "Un nouveau Double Entry Logger a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Double Entry Logger avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Double Entry Logger avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Double Entry Logger {{ id }} ?"
+      },
+      "detail": {
+        "title": "Double Entry Logger"
+      },
+      "dateEntered": "Date Entered",
+      "doubleEntryCode": "Double Entry Code",
+      "amount": "Amount",
+      "narration": "Narration",
+      "debit": "Debit",
+      "credit": "Credit"
+    }
+  }
+}

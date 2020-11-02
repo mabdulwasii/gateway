@@ -1,0 +1,52 @@
+{
+  "name": "WalletAccount",
+  "fields": [
+    {
+      "fieldName": "accountNumber",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "currentBalance",
+      "fieldType": "Double"
+    },
+    {
+      "fieldName": "dateOpened",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "scheme",
+      "otherEntityRelationshipName": "walletAccount",
+      "relationshipName": "scheme",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "walletAccountType",
+      "otherEntityRelationshipName": "walletAccount",
+      "relationshipName": "walletAccountType",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "profile",
+      "otherEntityRelationshipName": "walletAccount",
+      "relationshipName": "accountOwner",
+      "otherEntityField": "phoneNumber"
+    }
+  ],
+  "changelogDate": "20201013100413",
+  "entityTableName": "wallet_account",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

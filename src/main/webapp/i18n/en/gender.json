@@ -1,0 +1,9 @@
+{
+  "apiGatewayApp": {
+    "Gender": {
+      "null": "",
+      "FEMALE": "FEMALE",
+      "MALE": "MALE"
+    }
+  }
+}

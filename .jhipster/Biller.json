@@ -1,0 +1,55 @@
+{
+  "name": "Biller",
+  "fields": [
+    {
+      "fieldName": "billerID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "biller",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "address",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "phoneNumber",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "customersubscription",
+      "otherEntityRelationshipName": "biller",
+      "relationshipName": "customersubscription"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "billerPlatform",
+      "otherEntityRelationshipName": "biller",
+      "relationshipName": "billerPlatform"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "billerCategory",
+      "otherEntityRelationshipName": "biller",
+      "relationshipName": "billerCategory",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20201013100313",
+  "javadoc": "This setup different Billers in the system a Customer can be in",
+  "entityTableName": "biller",
+  "dto": "mapstruct",
+  "pagination": "pagination",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

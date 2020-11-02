@@ -1,0 +1,26 @@
+{
+  "name": "WalletAccountType",
+  "fields": [
+    {
+      "fieldName": "accountypeID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "walletAccountType",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20201013101213",
+  "entityTableName": "wallet_account_type",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

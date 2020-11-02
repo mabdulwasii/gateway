@@ -1,0 +1,23 @@
+{
+  "apiGatewayApp": {
+    "profileType": {
+      "home": {
+        "title": "ProfileTypes",
+        "createLabel": "Créer un nouveau Profile Type",
+        "createOrEditLabel": "Créer ou éditer un Profile Type",
+        "notFound": "Aucun Profile Type trouvé"
+      },
+      "created": "Un nouveau Profile Type a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Profile Type avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Profile Type avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Profile Type {{ id }} ?"
+      },
+      "detail": {
+        "title": "Profile Type"
+      },
+      "profiletypeID": "Profiletype ID",
+      "profiletype": "Profiletype"
+    }
+  }
+}

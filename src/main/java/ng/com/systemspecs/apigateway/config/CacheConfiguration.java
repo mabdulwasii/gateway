@@ -51,6 +51,29 @@ public class CacheConfiguration {
             createCache(cm, ng.com.systemspecs.apigateway.domain.User.class.getName());
             createCache(cm, ng.com.systemspecs.apigateway.domain.Authority.class.getName());
             createCache(cm, ng.com.systemspecs.apigateway.domain.User.class.getName() + ".authorities");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Profile.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Profile.class.getName() + ".walletAccounts");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Profile.class.getName() + ".paymentTransactions");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Profile.class.getName() + ".billerTransactions");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Profile.class.getName() + ".customersubscriptions");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Address.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.ProfileType.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Kyclevel.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Biller.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Biller.class.getName() + ".customersubscriptions");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Biller.class.getName() + ".billerPlatforms");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.WalletAccount.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Scheme.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.SchemeCategory.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.PaymentTransaction.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.BillerTransaction.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.Customersubscription.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.BillerPlatform.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.BillerCategory.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.BillerCategory.class.getName() + ".billers");
+            createCache(cm, ng.com.systemspecs.apigateway.domain.WalletAccountType.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.CountrolAccount.class.getName());
+            createCache(cm, ng.com.systemspecs.apigateway.domain.DoubleEntryLogger.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

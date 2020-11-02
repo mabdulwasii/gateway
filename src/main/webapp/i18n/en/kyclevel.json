@@ -1,0 +1,42 @@
+{
+  "apiGatewayApp": {
+    "kyclevel": {
+      "home": {
+        "title": "Kyclevels",
+        "createLabel": "Create a new Kyclevel",
+        "createOrEditLabel": "Create or edit a Kyclevel",
+        "notFound": "No Kyclevels found"
+      },
+      "created": "A new Kyclevel is created with identifier {{ param }}",
+      "updated": "A Kyclevel is updated with identifier {{ param }}",
+      "deleted": "A Kyclevel is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Kyclevel {{ id }}?"
+      },
+      "detail": {
+        "title": "Kyclevel"
+      },
+      "kycID": "Kyc ID",
+      "kyc": "Kyc",
+      "description": "Description",
+      "kycLevel": "Kyc Level",
+      "phoneNumber": "Phone Number",
+      "emailAddress": "Email Address",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "gender": "Gender",
+      "dateofBirth": "Dateof Birth",
+      "address": "Address",
+      "photoUpload": "Photo Upload",
+      "verifiedBVN": "Verified BVN",
+      "verifiedValidID": "Verified Valid ID",
+      "evidenceofAddress": "Evidenceof Address",
+      "verificationofAddress": "Verificationof Address",
+      "employmentDetails": "Employment Details",
+      "dailyTransactionLimit": "Daily Transaction Limit",
+      "cumulativeBalanceLimit": "Cumulative Balance Limit",
+      "paymentTransaction": "Payment Transaction",
+      "billerTransaction": "Biller Transaction"
+    }
+  }
+}

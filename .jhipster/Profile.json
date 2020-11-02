@@ -1,0 +1,99 @@
+{
+  "name": "Profile",
+  "fields": [
+    {
+      "fieldName": "profileID",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "phoneNumber",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "Gender",
+      "fieldValues": "FEMALE,MALE"
+    },
+    {
+      "fieldName": "dateOfBirth",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "address",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "photo",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "image"
+    },
+    {
+      "fieldName": "bvn",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "validID",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "walletAccount",
+      "otherEntityRelationshipName": "accountOwner",
+      "relationshipName": "walletAccount"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "paymentTransaction",
+      "otherEntityRelationshipName": "transactionOwner",
+      "relationshipName": "paymentTransaction"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "billerTransaction",
+      "otherEntityRelationshipName": "phoneNumber",
+      "relationshipName": "billerTransaction"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "customersubscription",
+      "otherEntityRelationshipName": "phoneNumber",
+      "relationshipName": "customersubscription"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "user",
+      "otherEntityRelationshipName": "profile",
+      "relationshipName": "user",
+      "otherEntityField": "login"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "profileType",
+      "otherEntityRelationshipName": "profile",
+      "relationshipName": "profileType",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "kyclevel",
+      "otherEntityRelationshipName": "profile",
+      "relationshipName": "kyc",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20201013095913",
+  "javadoc": "Profile of the user of the Solution this can be of any of the types :- Customer, Agent or Admin",
+  "entityTableName": "profile",
+  "dto": "mapstruct",
+  "pagination": "pagination",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

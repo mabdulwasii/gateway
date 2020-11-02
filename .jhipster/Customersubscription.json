@@ -1,0 +1,42 @@
+{
+  "name": "Customersubscription",
+  "fields": [
+    {
+      "fieldName": "uniqueID",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "frequency",
+      "fieldType": "Frequency",
+      "fieldValues": "DAILY,WEEKLY,MONTHLY,ANNUALLY"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "profile",
+      "otherEntityRelationshipName": "customersubscription",
+      "relationshipName": "phoneNumber",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "biller",
+      "otherEntityRelationshipName": "customersubscription",
+      "relationshipName": "biller",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20201013100913",
+  "entityTableName": "customersubscription",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

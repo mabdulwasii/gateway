@@ -1,0 +1,24 @@
+{
+  "apiGatewayApp": {
+    "billerCategory": {
+      "home": {
+        "title": "Biller Categories",
+        "createLabel": "Create a new Biller Category",
+        "createOrEditLabel": "Create or edit a Biller Category",
+        "notFound": "No Biller Categories found"
+      },
+      "created": "A new Biller Category is created with identifier {{ param }}",
+      "updated": "A Biller Category is updated with identifier {{ param }}",
+      "deleted": "A Biller Category is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Biller Category {{ id }}?"
+      },
+      "detail": {
+        "title": "Biller Category"
+      },
+      "billercategoryID": "Billercategory ID",
+      "billerCategory": "Biller Category",
+      "biller": "Biller"
+    }
+  }
+}

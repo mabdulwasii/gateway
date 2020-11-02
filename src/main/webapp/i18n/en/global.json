@@ -7,6 +7,22 @@
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entities",
+        "profileMySuffix": "Profile",
+        "addressMySuffix": "Address",
+        "profileTypeMySuffix": "Profile Type",
+        "kyclevelMySuffix": "Kyclevel",
+        "billerMySuffix": "Biller",
+        "walletAccountMySuffix": "Wallet Account",
+        "schemeMySuffix": "Scheme",
+        "schemeCategoryMySuffix": "Scheme Category",
+        "paymentTransactionMySuffix": "Payment Transaction",
+        "billerTransactionMySuffix": "Biller Transaction",
+        "customersubscriptionMySuffix": "Customersubscription",
+        "billerPlatformMySuffix": "Biller Platform",
+        "billerCategoryMySuffix": "Biller Category",
+        "walletAccountTypeMySuffix": "Wallet Account Type",
+        "countrolAccountMySuffix": "Countrol Account",
+        "doubleEntryLoggerMySuffix": "Double Entry Logger",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

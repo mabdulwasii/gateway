@@ -195,16 +195,37 @@ jhipster:
     contact-email:
     license: unlicensed
     license-url:
+
 kafka:
-  bootstrap-servers: localhost:9092
+  bootstrap.servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  polling.timeout: 30000
   consumer:
-    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    group.id: api-gateway
-    auto.offset.reset: earliest
+    trans:
+      name: queuing.api_gateway.trans
+      enabled: true
+      '[key.deserializer]': org.apache.kafka.common.serialization.StringDeserializer
+      '[value.deserializer]': ng.com.systemspecs.apigateway.service.kafka.deserializer.TransDeserializer
+      '[group.id]': api-gateway
+      '[auto.offset.reset]': earliest
+    log:
+      name: queuing.api_gateway.log
+      enabled: true
+      '[key.deserializer]': org.apache.kafka.common.serialization.StringDeserializer
+      '[value.deserializer]': ng.com.systemspecs.apigateway.service.kafka.deserializer.LogDeserializer
+      '[group.id]': api-gateway
+      '[auto.offset.reset]': earliest
   producer:
-    key.serializer: org.apache.kafka.common.serialization.StringSerializer
-    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+    trans:
+      name: queuing.api_gateway.trans
+      enabled: true
+      '[key.serializer]': org.apache.kafka.common.serialization.StringSerializer
+      '[value.serializer]': ng.com.systemspecs.apigateway.service.kafka.serializer.TransSerializer
+    log:
+      name: queuing.api_gateway.log
+      enabled: true
+      '[key.serializer]': org.apache.kafka.common.serialization.StringSerializer
+      '[value.serializer]': ng.com.systemspecs.apigateway.service.kafka.serializer.LogSerializer
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -214,4 +235,5 @@ kafka:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+app:
+  firebase-configuration-file: dfs-wallet-firebase-adminsdk-cyh9b-3509342a69.json

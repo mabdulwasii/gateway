@@ -1,0 +1,23 @@
+{
+  "apiGatewayApp": {
+    "countrolAccount": {
+      "home": {
+        "title": "Countrol Accounts",
+        "createLabel": "Create a new Countrol Account",
+        "createOrEditLabel": "Create or edit a Countrol Account",
+        "notFound": "No Countrol Accounts found"
+      },
+      "created": "A new Countrol Account is created with identifier {{ param }}",
+      "updated": "A Countrol Account is updated with identifier {{ param }}",
+      "deleted": "A Countrol Account is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Countrol Account {{ id }}?"
+      },
+      "detail": {
+        "title": "Countrol Account"
+      },
+      "countrolAccountCode": "Countrol Account Code",
+      "countrolAccountName": "Countrol Account Name"
+    }
+  }
+}

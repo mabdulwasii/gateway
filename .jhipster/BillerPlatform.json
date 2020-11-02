@@ -1,0 +1,38 @@
+{
+  "name": "BillerPlatform",
+  "fields": [
+    {
+      "fieldName": "billerplatformID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "billerPlatform",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "Double"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "biller",
+      "otherEntityRelationshipName": "billerPlatform",
+      "relationshipName": "biller",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20201013101013",
+  "entityTableName": "biller_platform",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

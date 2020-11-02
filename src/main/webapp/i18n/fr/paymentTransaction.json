@@ -1,0 +1,36 @@
+{
+  "apiGatewayApp": {
+    "paymentTransaction": {
+      "home": {
+        "title": "PaymentTransactions",
+        "createLabel": "Créer un nouveau Payment Transaction",
+        "createOrEditLabel": "Créer ou éditer un Payment Transaction",
+        "notFound": "Aucun Payment Transaction trouvé"
+      },
+      "created": "Un nouveau Payment Transaction a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Payment Transaction avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Payment Transaction avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Payment Transaction {{ id }} ?"
+      },
+      "detail": {
+        "title": "Payment Transaction"
+      },
+      "paymenttransID": "Paymenttrans ID",
+      "transactionType": "Transaction Type",
+      "transactionRef": "Transaction Ref",
+      "amount": "Amount",
+      "channel": "Channel",
+      "currency": "Currency",
+      "sourceAccount": "Source Account",
+      "sourceAccountBankCode": "Source Account Bank Code",
+      "sourceAccountName": "Source Account Name",
+      "sourceNarration": "Source Narration",
+      "destinationAccount": "Destination Account",
+      "destinationAccountBankCode": "Destination Account Bank Code",
+      "destinationAccountName": "Destination Account Name",
+      "destinationNarration": "Destination Narration",
+      "transactionOwner": "Transaction Owner"
+    }
+  }
+}

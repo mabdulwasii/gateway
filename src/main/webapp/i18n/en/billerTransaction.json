@@ -1,0 +1,26 @@
+{
+  "apiGatewayApp": {
+    "billerTransaction": {
+      "home": {
+        "title": "Biller Transactions",
+        "createLabel": "Create a new Biller Transaction",
+        "createOrEditLabel": "Create or edit a Biller Transaction",
+        "notFound": "No Biller Transactions found"
+      },
+      "created": "A new Biller Transaction is created with identifier {{ param }}",
+      "updated": "A Biller Transaction is updated with identifier {{ param }}",
+      "deleted": "A Biller Transaction is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Biller Transaction {{ id }}?"
+      },
+      "detail": {
+        "title": "Biller Transaction"
+      },
+      "billertransID": "Billertrans ID",
+      "transactionRef": "Transaction Ref",
+      "narration": "Narration",
+      "amount": "Amount",
+      "phoneNumber": "Phone Number"
+    }
+  }
+}

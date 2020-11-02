@@ -1,0 +1,23 @@
+{
+  "apiGatewayApp": {
+    "walletAccountType": {
+      "home": {
+        "title": "Wallet Account Types",
+        "createLabel": "Create a new Wallet Account Type",
+        "createOrEditLabel": "Create or edit a Wallet Account Type",
+        "notFound": "No Wallet Account Types found"
+      },
+      "created": "A new Wallet Account Type is created with identifier {{ param }}",
+      "updated": "A Wallet Account Type is updated with identifier {{ param }}",
+      "deleted": "A Wallet Account Type is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Wallet Account Type {{ id }}?"
+      },
+      "detail": {
+        "title": "Wallet Account Type"
+      },
+      "accountypeID": "Accountype ID",
+      "walletAccountType": "Wallet Account Type"
+    }
+  }
+}

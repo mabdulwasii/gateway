@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.security.jwt;
 
+import org.apache.http.HttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -34,6 +35,7 @@ public class JWTFilter extends GenericFilterBean {
         if (StringUtils.hasText(jwt) && this.tokenProvider.validateToken(jwt)) {
             Authentication authentication = this.tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }

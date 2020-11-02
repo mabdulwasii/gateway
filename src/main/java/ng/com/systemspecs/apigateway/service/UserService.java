@@ -2,8 +2,10 @@ package ng.com.systemspecs.apigateway.service;
 
 import ng.com.systemspecs.apigateway.config.Constants;
 import ng.com.systemspecs.apigateway.domain.Authority;
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.AuthorityRepository;
+import ng.com.systemspecs.apigateway.repository.ProfileRepository;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.AuthoritiesConstants;
 import ng.com.systemspecs.apigateway.security.SecurityUtils;
@@ -36,6 +38,7 @@ public class UserService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -43,11 +46,12 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+    public UserService(UserRepository userRepository,ProfileRepository profileRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.profileRepository = profileRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -94,12 +98,7 @@ public class UserService {
                 throw new UsernameAlreadyUsedException();
             }
         });
-        userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).ifPresent(existingUser -> {
-            boolean removed = removeNonActivatedUser(existingUser);
-            if (!removed) {
-                throw new EmailAlreadyUsedException();
-            }
-        });
+
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
@@ -113,13 +112,17 @@ public class UserService {
         newUser.setImageUrl(userDTO.getImageUrl());
         newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
-        newUser.setActivated(false);
+        newUser.setActivated(true);
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
-        userRepository.save(newUser);
+        User user = userRepository.save(newUser);
+        Profile profile = new Profile();
+        profile.setUser(user);
+        profile.setPhoneNumber(userDTO.getLogin());
+        profileRepository.save(profile);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;

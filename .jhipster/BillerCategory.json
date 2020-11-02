@@ -1,0 +1,33 @@
+{
+  "name": "BillerCategory",
+  "fields": [
+    {
+      "fieldName": "billercategoryID",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "billerCategory",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "biller",
+      "otherEntityRelationshipName": "billerCategory",
+      "relationshipName": "biller"
+    }
+  ],
+  "changelogDate": "20201013101113",
+  "entityTableName": "biller_category",
+  "dto": "mapstruct",
+  "pagination": "infinite-scroll",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}

@@ -1,0 +1,24 @@
+{
+  "apiGatewayApp": {
+    "schemeCategory": {
+      "home": {
+        "title": "SchemeCategories",
+        "createLabel": "Créer un nouveau Scheme Category",
+        "createOrEditLabel": "Créer ou éditer un Scheme Category",
+        "notFound": "Aucun Scheme Category trouvé"
+      },
+      "created": "Un nouveau Scheme Category a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Scheme Category avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Scheme Category avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Scheme Category {{ id }} ?"
+      },
+      "detail": {
+        "title": "Scheme Category"
+      },
+      "schemecategoryID": "Schemecategory ID",
+      "schemeCategory": "Scheme Category",
+      "description": "Description"
+    }
+  }
+}

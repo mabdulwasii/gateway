@@ -1,0 +1,27 @@
+{
+  "apiGatewayApp": {
+    "walletAccount": {
+      "home": {
+        "title": "WalletAccounts",
+        "createLabel": "Créer un nouveau Wallet Account",
+        "createOrEditLabel": "Créer ou éditer un Wallet Account",
+        "notFound": "Aucun Wallet Account trouvé"
+      },
+      "created": "Un nouveau Wallet Account a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Wallet Account avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Wallet Account avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Wallet Account {{ id }} ?"
+      },
+      "detail": {
+        "title": "Wallet Account"
+      },
+      "accountNumber": "Account Number",
+      "currentBalance": "Current Balance",
+      "dateOpened": "Date Opened",
+      "scheme": "Scheme",
+      "walletAccountType": "Wallet Account Type",
+      "accountOwner": "Account Owner"
+    }
+  }
+}

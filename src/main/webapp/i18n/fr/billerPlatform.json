@@ -1,0 +1,25 @@
+{
+  "apiGatewayApp": {
+    "billerPlatform": {
+      "home": {
+        "title": "BillerPlatforms",
+        "createLabel": "Créer un nouveau Biller Platform",
+        "createOrEditLabel": "Créer ou éditer un Biller Platform",
+        "notFound": "Aucun Biller Platform trouvé"
+      },
+      "created": "Un nouveau Biller Platform a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Biller Platform avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Biller Platform avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Biller Platform {{ id }} ?"
+      },
+      "detail": {
+        "title": "Biller Platform"
+      },
+      "billerplatformID": "Billerplatform ID",
+      "billerPlatform": "Biller Platform",
+      "amount": "Amount",
+      "biller": "Biller"
+    }
+  }
+}

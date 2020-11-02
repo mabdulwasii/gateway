@@ -1,0 +1,49 @@
+{
+  "name": "DoubleEntryLogger",
+  "fields": [
+    {
+      "fieldName": "dateEntered",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "doubleEntryCode",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "Double"
+    },
+    {
+      "fieldName": "narration",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "countrolAccount",
+      "otherEntityRelationshipName": "doubleEntryLogger",
+      "relationshipName": "debit",
+      "otherEntityField": "countrolAccountCode"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "countrolAccount",
+      "otherEntityRelationshipName": "doubleEntryLogger",
+      "relationshipName": "credit",
+      "otherEntityField": "countrolAccountCode"
+    }
+  ],
+  "changelogDate": "20201013101413",
+  "entityTableName": "double_entry_logger",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "angularJSSuffix": "mySuffix"
+}
