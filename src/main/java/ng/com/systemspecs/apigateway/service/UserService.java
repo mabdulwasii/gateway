@@ -9,6 +9,7 @@ import ng.com.systemspecs.apigateway.repository.ProfileRepository;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.AuthoritiesConstants;
 import ng.com.systemspecs.apigateway.security.SecurityUtils;
+import ng.com.systemspecs.apigateway.service.dto.RegisteredUserDTO;
 import ng.com.systemspecs.apigateway.service.dto.UserDTO;
 
 import io.github.jhipster.security.RandomUtil;
@@ -91,8 +92,8 @@ public class UserService {
             });
     }
 
-    public User registerUser(UserDTO userDTO, String password) {
-        userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).ifPresent(existingUser -> {
+    public User registerUser(RegisteredUserDTO registeredUserDTO, String password) {
+        userRepository.findOneByLogin(registeredUserDTO.getPhoneNumber().toLowerCase()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
             if (!removed) {
                 throw new UsernameAlreadyUsedException();
@@ -101,16 +102,17 @@ public class UserService {
 
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(userDTO.getLogin().toLowerCase());
+        newUser.setLogin(registeredUserDTO.getPhoneNumber());
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) {
-            newUser.setEmail(userDTO.getEmail().toLowerCase());
-        }
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
+        newUser.setFirstName(registeredUserDTO.getFirstName());
+        newUser.setLastName(registeredUserDTO.getLastName());
+		/*
+		 * if (registeredUserDTO.getEmail() != null) {
+		 * newUser.setEmail(userDTO.getEmail().toLowerCase()); }
+		 */
+        //newUser.setImageUrl(userDTO.getImageUrl());
+        //newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
         newUser.setActivated(true);
         // new user gets registration key
@@ -121,7 +123,8 @@ public class UserService {
         User user = userRepository.save(newUser);
         Profile profile = new Profile();
         profile.setUser(user);
-        profile.setPhoneNumber(userDTO.getLogin());
+        profile.setPhoneNumber(registeredUserDTO.getPhoneNumber());
+        profile.setProfileID("1");
         profileRepository.save(profile);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);

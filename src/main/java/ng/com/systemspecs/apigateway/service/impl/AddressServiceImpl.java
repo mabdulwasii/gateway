@@ -2,6 +2,7 @@ package ng.com.systemspecs.apigateway.service.impl;
 
 import ng.com.systemspecs.apigateway.service.AddressService;
 import ng.com.systemspecs.apigateway.domain.Address;
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.repository.AddressRepository;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
 import ng.com.systemspecs.apigateway.service.mapper.AddressMapper;
@@ -35,13 +36,20 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    public AddressDTO save(AddressDTO addressDTO,Profile addressOwner) {
+        log.debug("Request to save Address : {}", addressDTO);
+        Address address = addressMapper.toEntity(addressDTO);
+        address.setAddressOwner(addressOwner);
+        address = addressRepository.save(address);
+        return addressMapper.toDto(address);
+    }
+    @Override
     public AddressDTO save(AddressDTO addressDTO) {
         log.debug("Request to save Address : {}", addressDTO);
         Address address = addressMapper.toEntity(addressDTO);
         address = addressRepository.save(address);
         return addressMapper.toDto(address);
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<AddressDTO> findAll() {

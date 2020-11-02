@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.service;
 
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface AddressService {
      * @param addressDTO the entity to save.
      * @return the persisted entity.
      */
+    AddressDTO save(AddressDTO addressDTO,Profile addressOwner);
+    
     AddressDTO save(AddressDTO addressDTO);
 
     /**

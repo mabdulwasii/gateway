@@ -47,12 +47,12 @@ public class AddressResource {
     @PostMapping("/addresses")
     public ResponseEntity<AddressDTO> createAddress(@RequestBody AddressDTO addressDTO) throws URISyntaxException {
         log.debug("REST request to save Address : {}", addressDTO);
-        if (addressDTO.getId() != null) {
+        if (addressDTO.getAddress() != null) {
             throw new BadRequestAlertException("A new address cannot already have an ID", ENTITY_NAME, "idexists");
         }
         AddressDTO result = addressService.save(addressDTO);
-        return ResponseEntity.created(new URI("/api/addresses/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/addresses/" + result.getAddress()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getAddress().toString()))
             .body(result);
     }
 
@@ -68,12 +68,12 @@ public class AddressResource {
     @PutMapping("/addresses")
     public ResponseEntity<AddressDTO> updateAddress(@RequestBody AddressDTO addressDTO) throws URISyntaxException {
         log.debug("REST request to update Address : {}", addressDTO);
-        if (addressDTO.getId() == null) {
+        if (addressDTO.getAddress() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         AddressDTO result = addressService.save(addressDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, addressDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, addressDTO.getAddress()))
             .body(result);
     }
 

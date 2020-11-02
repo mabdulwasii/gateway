@@ -9,6 +9,7 @@ import javax.validation.constraints.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import ng.com.systemspecs.apigateway.domain.enumeration.TransactionType;
 
@@ -20,6 +21,7 @@ import ng.com.systemspecs.apigateway.domain.enumeration.TransactionType;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PaymentTransaction implements Serializable {
 
+	
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -27,6 +29,8 @@ public class PaymentTransaction implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
+    private LocalDate transactionDate;
+    
     @Column(name = "paymenttrans_id")
     private Long paymenttransID;
 
@@ -52,7 +56,7 @@ public class PaymentTransaction implements Serializable {
     @NotNull
     @Column(name = "source_account", nullable = false)
     private String sourceAccount;
-
+    
     @NotNull
     @Column(name = "source_account_bank_code", nullable = false)
     private String sourceAccountBankCode;
@@ -325,4 +329,12 @@ public class PaymentTransaction implements Serializable {
             ", destinationNarration='" + getDestinationNarration() + "'" +
             "}";
     }
+
+	public LocalDate getTransactionDate() {
+		return transactionDate;
+	}
+
+	public void setTransactionDate(LocalDate transactionDate) {
+		this.transactionDate = transactionDate;
+	}
 }

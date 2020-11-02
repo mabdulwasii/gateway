@@ -383,8 +383,16 @@
 			<artifactId>firebase-admin</artifactId>
 			<version>7.0.1</version>
 		</dependency>
-
-
+		<dependency>
+			<groupId>ng.com.systemspecs</groupId>
+			<artifactId>remita-billing-gateway</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>ng.com.systemspecs</groupId>
+			<artifactId>remita-rits</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -941,7 +949,7 @@
 					</executions>
 					<configuration>
 						<mainClass>${start-class}</mainClass>
-						<fork>true</fork>
+						<fork>false</fork>
 						<!-- Enable the line below to have remote debugging of your application 
 							on port 5005 <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments> -->
 					</configuration>

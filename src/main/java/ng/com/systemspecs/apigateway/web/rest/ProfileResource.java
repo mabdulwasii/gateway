@@ -1,20 +1,33 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.enumeration.Gender;
+import ng.com.systemspecs.apigateway.repository.UserRepository;
+import ng.com.systemspecs.apigateway.service.AddressService;
 import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.web.rest.errors.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
+import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
+import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
 import ng.com.systemspecs.apigateway.service.dto.PinDTO;
+import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.PostResponseDataDTO;
 import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
+import ng.com.systemspecs.apigateway.service.dto.RegisterCompleteResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.RegistrationLastPageDTO;
+import ng.com.systemspecs.apigateway.service.dto.RespondDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
+import ng.com.systemspecs.apigateway.service.validation.LastPageValidation;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
+
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +45,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -45,17 +59,25 @@ public class ProfileResource {
 
     private final Logger log = LoggerFactory.getLogger(ProfileResource.class);
 
+    private static long WALLET_ID=100000;
+    private static long Lower_Bond = 10000000000L;
+    private static long Upper_Bond = 90000000000L;
+
     private static final String ENTITY_NAME = "profile";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
-
     private final ProfileService profileService;
     private final WalletAccountService walleAccountService;
-
-    public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService) {
-        this.profileService = profileService;
+    private final AddressService addressService;
+    private final UserRepository userRepository;
+    public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
+    		UserRepository userRepository,
+    		AddressService addressService) {
+		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
+        this.addressService=addressService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -150,42 +172,134 @@ public class ProfileResource {
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
     
-    @PostMapping("/updateuserwithsession")
-    public WalletAccountDTO  updateAccount(@Valid @RequestBody ProfileDTO profileDTO,HttpSession session) {
+    @PostMapping("/lastpage")
+    public ResponseEntity<RegisterCompleteResponseDTO<WalletAccountDTO>>  updateAccount(@Valid @RequestBody RegistrationLastPageDTO lastPageDTO,HttpSession session) {
+    	LastPageValidation validate = new LastPageValidation(lastPageDTO);
+    	RegisterCompleteResponseDTO<WalletAccountDTO> ResponseDTO = new RegisterCompleteResponseDTO<WalletAccountDTO>();
+    	if(!validate.checkErrors()) {
+    		ResponseDTO.setMessage(validate.getErrors());
+    		return new ResponseEntity<>(ResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
+    	}
     	String phoneNumber = (String) session.getAttribute("phoneNumber");
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
-    	profile.setAddress(profileDTO.getAddress());
-    	profile.setDateOfBirth(profileDTO.getDateOfBirth());
+    	Optional<User> user = userRepository.findOneByLogin(phoneNumber);
+        //user.setEmail();
+    	user.ifPresent(theUser -> {
+    		//System.out.println(theUser.getFirstName());
+    		theUser.setEmail(lastPageDTO.getEmail());
+    		userRepository.save(theUser);
+    	});
+    	
+    	//User user = UserRepository
+    	//profile.setAddress(profileDTO.getAddress());
+    	AddressDTO addressDTO = new AddressDTO();
+    	addressDTO.setAddress(lastPageDTO.getAddress());
+    	addressDTO.setLatitude(lastPageDTO.getLatitude());
+    	addressDTO.setLongitude(lastPageDTO.getLongitude());
+    	addressDTO.setAddressOwner(profile);
+    	addressService.save(addressDTO);
+    	profile.setDateOfBirth(lastPageDTO.getDateOfBirth());
     	profile.setKyc(null);
-    	profile.setGender(Gender.valueOf(profileDTO.getGender()));
+    	profile.setProfileID("3");
+    	profile.setGender(Gender.valueOf(lastPageDTO.getGender()));
+            	
     	WalletAccountDTO walletAccountDTO = new WalletAccountDTO();
-    	walletAccountDTO.setAccountNumber(new Random().nextLong()*10000000000L);
-    	walletAccountDTO.setAccountOwnerPhoneNumber(profileDTO.getPhoneNumber());
+    	walletAccountDTO.setAccountNumber(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond));
+    	walletAccountDTO.setAccountOwnerPhoneNumber(profile.getPhoneNumber());
     	walletAccountDTO.setAccountOwnerId(profile.getId());
+    	walletAccountDTO.setAccountName(profile.getUser().getFirstName());
     	walletAccountDTO.setDateOpened(LocalDate.now());
     	walletAccountDTO.setCurrentBalance(0.00);
-    	walletAccountDTO.setSchemeId(Long.getLong(profileDTO.getSchemeID()));
-    	walleAccountService.save(walletAccountDTO);
-    	return walletAccountDTO;
+    	walletAccountDTO.setSchemeId(1L);
+    	WalletAccountDTO wallet = walleAccountService.save(walletAccountDTO);
+    	ResponseDTO.setMessage("Registeration successfull");
+    	ResponseDTO.setWallet(wallet);
+		return new ResponseEntity<>(ResponseDTO, new HttpHeaders(), HttpStatus.OK);
     }   
-    @PostMapping("/updatewithphonenumber")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateProfileWithPhoneNumber(@Valid @RequestBody ProfileDTO profileDTO) {
-    	Profile profile = profileService.findByPhoneNumber(profileDTO.getPhoneNumber());
-    	profile.setAddress(profileDTO.getAddress());
-    	profile.setDateOfBirth(profileDTO.getDateOfBirth());
-    	profile.setKyc(null);
-    	profile.setGender(Gender.valueOf(profileDTO.getGender()));
-    	profile=profileService.save(profile);
-
-    }      
+	/*
+	 * @PostMapping("/updatewithphonenumber")
+	 * 
+	 * @ResponseStatus(HttpStatus.ACCEPTED) public void
+	 * updateProfileWithPhoneNumber(@Valid @RequestBody ProfileDTO profileDTO) {
+	 * Profile profile =
+	 * profileService.findByPhoneNumber(profileDTO.getPhoneNumber());
+	 * profile.setAddress(profileDTO.getAddress());
+	 * profile.setDateOfBirth(profileDTO.getDateOfBirth()); profile.setKyc(null);
+	 * profile.setGender(Gender.valueOf(profileDTO.getGender()));
+	 * profile=profileService.save(profile);
+	 * 
+	 * }
+	 */
     
     @PostMapping("/pin")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void createUpdatePin(@Valid @RequestBody PinDTO pinDTO) {
-    	Profile profile = profileService.findByPhoneNumber(pinDTO.getPhoneNumber());
+    public ResponseEntity<PostResponseDTO> createUpdatePin(@Valid @RequestBody PinDTO pinDTO,HttpSession session) {
+    	String phoneNumber = (String) session.getAttribute("phoneNumber");
+    	System.out.println(" phoneNumber ===" + phoneNumber);
+		PostResponseDTO postResponseDTO = new PostResponseDTO();
+		PostResponseDataDTO postResponseDataDTO = new PostResponseDataDTO();
+		postResponseDTO.setMessage("pin successfully created");
+    	if(Strings.isEmpty(phoneNumber)) {
+    		postResponseDTO.setMessage("unable to validate user");
+    		postResponseDataDTO.setCode("10");
+    		postResponseDataDTO.setDescription("section authentication failed");
+        	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
+			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
+    	}
+    	if(Strings.isEmpty(pinDTO.getPin())) {
+    		postResponseDTO.setMessage("unable to validate user");
+    		postResponseDataDTO.setCode("10");
+    		postResponseDataDTO.setDescription("section authentication failed");
+        	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
+			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
+    	}
+    	Profile profile = profileService.findByPhoneNumber(phoneNumber);
     	profile.setPin(Integer.valueOf(pinDTO.getPin().hashCode()));
+    	profile.setProfileID("2");
     	profile=profileService.save(profile);
 
+		postResponseDTO.setMessage("pin successfully created");
+		postResponseDataDTO.setCode("00");
+		postResponseDataDTO.setDescription("Pin Successfully Created!");
+    	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
+
+		return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.OK);
+    }    
+    @PostMapping("/verify-otp")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<PostResponseDTO> verifyOTP(@Valid @RequestBody OTPDTO otpDTO,HttpSession session) {
+    	String otp = (String) session.getAttribute("otp");
+    	//if (otp.isB) otp = "111111";
+    	//if(otpDTO.getOtp())
+		PostResponseDTO postResponseDTO = new PostResponseDTO();
+		PostResponseDataDTO postResponseDataDTO = new PostResponseDataDTO();
+		postResponseDTO.setMessage("otp successfully validated");
+		postResponseDataDTO.setCode("00");
+		postResponseDataDTO.setDescription("OTP successfully validated!");
+		if(otpDTO.getOtp() == null) {
+			postResponseDTO.setMessage("you must enter otp");
+    		postResponseDataDTO.setCode("08");
+    		postResponseDataDTO.setDescription(otpDTO.getOtp());
+			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
+		}
+    	if(!otpDTO.getOtp().trim().equals(otp.trim())) {
+    		postResponseDTO.setMessage("invalid otp");
+    		postResponseDataDTO.setCode("08");
+    		postResponseDataDTO.setDescription(otpDTO.getOtp());
+			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
+
+    	}
+    	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
+    	System.out.println(" session otp==="+otp);
+
+		return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.OK);
+
+    		
+    } 
+    @GetMapping("/regStage")
+    public String getMyRegStage(HttpSession session) {
+    	String phoneNumber = (String) session.getAttribute("phoneNumber");
+    	Profile profile = profileService.findByPhoneNumber(phoneNumber);
+    	return profile.getProfileID();
     }      
 }

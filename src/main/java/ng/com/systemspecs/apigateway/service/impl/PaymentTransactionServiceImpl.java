@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -68,4 +69,27 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         log.debug("Request to delete PaymentTransaction : {}", id);
         paymentTransactionRepository.deleteById(id);
     }
+
+
+
+	@Override
+	public List<PaymentTransactionDTO> findBySourceAccountName(String sourceAccountName) {
+        log.debug("Request to get all customer's PaymentTransactions");
+        return paymentTransactionMapper.toDto(paymentTransactionRepository.findBySourceAccountName(sourceAccountName));
+	}
+
+	@Override
+	public List<PaymentTransactionDTO> findBySourceAccount(String sourceAccount) {
+	       log.debug("Request to get send money PaymentTransactions");
+	        return paymentTransactionMapper.toDto(paymentTransactionRepository.
+	        		findBySourceAccount(sourceAccount));
+
+	}
+
+	@Override
+	public List<PaymentTransactionDTO> findByDestinationAccount(String destinationAccount) {
+	       log.debug("Request to get funding PaymentTransactions");
+	        return paymentTransactionMapper.toDto(paymentTransactionRepository.
+	        		findByDestinationAccount(destinationAccount));
+	}
 }

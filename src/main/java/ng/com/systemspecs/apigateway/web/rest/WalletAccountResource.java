@@ -1,24 +1,60 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
+import ng.com.systemspecs.apigateway.domain.User;
+import ng.com.systemspecs.apigateway.security.SecurityUtils;
+import ng.com.systemspecs.apigateway.service.ProfileService;
+import ng.com.systemspecs.apigateway.service.RITSService;
+import ng.com.systemspecs.apigateway.service.UserService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
+import ng.com.systemspecs.apigateway.service.dto.BankAccountDTO;
+import ng.com.systemspecs.apigateway.service.dto.BankDTO;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
+import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
+import ng.com.systemspecs.apigateway.service.dto.VerifyBankAccountDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+ 
+import ng.com.systemspecs.apigateway.web.rest.errors.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+
+import java.util.Optional;
+ 
+import  ng.com.systemspecs.remitarits.util.*;
+import  ng.com.systemspecs.remitarits.bulkpayment.*;
+import  ng.com.systemspecs.remitarits.accountenquiry.*;
+import  ng.com.systemspecs.remitarits.bankenquiry.*; 
+import  ng.com.systemspecs.remitarits.singlepayment.*;
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.*;
+import  ng.com.systemspecs.remitarits.bulkpayment.*;
+import  ng.com.systemspecs.remitarits.bulkpaymentstatus.*;
+import  ng.com.systemspecs.remitarits.bankenquiry.*;
+import  ng.com.systemspecs.remitarits.configuration.*;
+import  ng.com.systemspecs.remitarits.service.*;
+import  ng.com.systemspecs.remitarits.service.impl.*;
 
 /**
  * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.WalletAccount}.
@@ -35,6 +71,9 @@ public class WalletAccountResource {
     private String applicationName;
 
     private final WalletAccountService walletAccountService;
+	
+	@Autowired
+    RITSService  rITSService;
 
     public WalletAccountResource(WalletAccountService walletAccountService) {
         this.walletAccountService = walletAccountService;
@@ -126,7 +165,7 @@ public class WalletAccountResource {
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
     @PostMapping("/fund-wallet")
-    public ResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
+    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
         log.debug("REST request to fund WalletAccount : {}", fundDTO);
 		/*
 		 * if (walletAccountDTO.getId() != null) { throw new
@@ -134,16 +173,54 @@ public class WalletAccountResource {
 		 * ENTITY_NAME, "idexists"); }
 		 */
         Random rand = new Random();
-        ResponseDTO response = walletAccountService.fund(fundDTO);
+        PaymentResponseDTO response = walletAccountService.fund(fundDTO);
         return response;
     }  
     
     @PostMapping("/send-money")
-    public ResponseDTO sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
+    public PaymentResponseDTO sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
         log.debug("REST request to send money from WalletAccount : {}", sendMoneyDTO);
 
         Random rand = new Random();
-        ResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
+        PaymentResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
         return response;
-    }     
+    }    
+
+
+    
+
+    @PostMapping({"/payment","/rits-payment"})
+	  public SinglePaymentResponse singlePayment(SinglePaymentRequest   singleRequest) {
+    	 return rITSService.singlePayment(singleRequest);
+    }
+    
+	  
+    @PostMapping({"/bulk-payment","/rits-bulk-payment"})
+	  public BulkPaymentResponse postBulkPayment(BulkPaymentRequest request) {
+    	 return rITSService.postBulkPayment(request);
+    }
+
+
+	  @PostMapping({"/payment-status","/rits-payment-status"})
+	    public PaymentStatusResponse singlePaymentStatus(PaymentStatusRequest request) {
+		  return rITSService.singlePaymentStatus(request);
+	  }
+	    
+	  @PostMapping({"/bulk-payment-status","/rits-bulk-payment-status"}) 
+	    public BulkPaymentStatusResponse bulkPaymentStatus(BulkPaymentStatusRequest request) {
+		  return rITSService.bulkPaymentStatus(request);
+	  }
+	    
+	   
+	  @PostMapping({"/verify-account","/rits-account-enquiry"})
+	    public AccountEnquiryResponse getAccountEnquiry(AccountEnqiryRequest accountEnqiryRequest) {
+		  return rITSService.getAccountEnquiry(accountEnqiryRequest);
+	  } 
+	    
+	  @PostMapping({"/banks/all","/rits-banks"})  
+	    public GetActiveBankResponse getActiveBanks(){
+		      return rITSService.getActiveBanks();
+	    }
+	    
+	    	
 }
