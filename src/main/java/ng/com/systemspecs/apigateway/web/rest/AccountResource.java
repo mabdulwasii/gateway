@@ -99,7 +99,7 @@ public class AccountResource {
 			RespondDTO.setMessage("Phone Number Cannot be Empty");
 			return new ResponseEntity<>(RespondDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
 		}
-		if(registeredUserDTO.getPhoneNumber().length() < 11 || registeredUserDTO.getPhoneNumber().length() > 13) {
+		if(registeredUserDTO.getPhoneNumber().length() < 11 || registeredUserDTO.getPhoneNumber().length() > 15) {
 			RespondDTO.setMessage("Phone number must be between 11 to 13 digits");
 			return new ResponseEntity<>(RespondDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
 		}

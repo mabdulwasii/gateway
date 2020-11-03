@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity BillerPlatform.
+    -->
+    <changeSet id="20201013101013-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="biller_id"
+                                 baseTableName="biller_platform"
+                                 constraintName="fk_biller_platform_biller_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="biller"/>
+
+    </changeSet>
+</databaseChangeLog>
