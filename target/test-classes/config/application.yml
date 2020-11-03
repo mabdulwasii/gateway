@@ -141,7 +141,6 @@ kafka:
       enabled: false
       '[key.serializer]': org.apache.kafka.common.serialization.StringSerializer
       '[value.serializer]': ng.com.systemspecs.apigateway.service.kafka.serializer.LogSerializer
-
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
