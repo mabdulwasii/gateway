@@ -5,6 +5,9 @@ import ng.com.systemspecs.apigateway.domain.BillerTransaction;
 import ng.com.systemspecs.apigateway.repository.BillerTransactionRepository;
 import ng.com.systemspecs.apigateway.service.dto.BillerTransactionDTO;
 import ng.com.systemspecs.apigateway.service.mapper.BillerTransactionMapper;
+import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
+import ng.com.systemspecs.apigateway.service.kafka.producer.TransProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +33,10 @@ import ng.com.systemspecs.remitabillinggateway.configuration.Credentials;
 import ng.com.systemspecs.remitabillinggateway.util.*;
 import ng.com.systemspecs.remitabillinggateway.service.impl.*; 
 import ng.com.systemspecs.remitabillinggateway.customfields.*;
+ 
 
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-
 import  java.util.List;
 import  java.util.ArrayList;
 import  java.math.BigDecimal;
@@ -46,22 +49,27 @@ import  java.math.BigDecimal;
 public class BillerTransactionServiceImpl implements BillerTransactionService {
 
     private final Logger log = LoggerFactory.getLogger(BillerTransactionServiceImpl.class);
-	
+    
     private static long Lower_Bond = 10000000000L;
     private static long Upper_Bond = 90000000000L;
-
 
     private final BillerTransactionRepository billerTransactionRepository;
 
     private final BillerTransactionMapper billerTransactionMapper;
-	
-	
+    private final TransProducer producer;
+    
+    private  String  payNotfyTransId  = "";
+     
 
-    public BillerTransactionServiceImpl(BillerTransactionRepository billerTransactionRepository, BillerTransactionMapper billerTransactionMapper) {
+    public BillerTransactionServiceImpl(BillerTransactionRepository billerTransactionRepository, BillerTransactionMapper billerTransactionMapper, TransProducer producer) {
         this.billerTransactionRepository = billerTransactionRepository;
         this.billerTransactionMapper = billerTransactionMapper;
+      this.producer   =  producer;
     }
 	
+ 
+	    
+	    
 	    @Override
     public   RemitaBillingGatewayService  getRemitaBillingGatewayService() {
     	Credentials credentials = new Credentials(); 
@@ -71,7 +79,7 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
         credentials.setTransactionId(String.valueOf(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond)));
         credentials.setSecretKey("98778887778");
 		log.debug("Transaction Id = "+credentials.getTransactionId());
-    	
+		payNotfyTransId  =   credentials.getTransactionId();
     	return  new RemitaBillingGatewayServiceImpl(credentials);    	 
     }
 	
@@ -152,10 +160,36 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
     
     @Override
     public BillNotificationResponse billNotification(BillRequest billRequest){
-        
-    	RemitaBillingGatewayService  gatewayService =  notifyBillingGatewayService();
-		
-    	 return   gatewayService.billNotification(billRequest);
+    	PaymentResponseDTO responseDTO = new PaymentResponseDTO();
+    	PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
+    	
+    	Credentials credentials = new Credentials(); 
+    	credentials.setPublicKey("dC5vbW9udWJpQGdtYWlsLmNvbXxiM2RjMDhjZDRlZTc5ZDIxZDQwMjdjOWM3MmI5ZWY0ZDA3MTk2YTRkNGRkMjY3NjNkMGZkYzA4MjM1MzI4OWFhODE5OGM4MjM0NTI2YWI2ZjZkYzNhZmQzNDNkZmIzYmUwNTkxODlmMmNkOTkxNmM5MjVhNjYwZjk0ZTk1OTkwNw==");
+	   	credentials.setSecretKey("95ab7ab7b2dc3152e3ab776c8f4bbe0ec5fe87526ee129617f319fb9edf79263a6fd15f1efe78f38ad6f04634dff993ccf9f075bf91f37aa52b61a9bd61c881e");
+	   	credentials.setTransactionId(String.valueOf(System.currentTimeMillis()));
+	   	credentials.setEnvironment(EnvironmentType.DEMO);
+		log.debug("Transaction Id = "+credentials.getTransactionId());
+	    	
+		RemitaBillingGatewayService  gatewayService =  new RemitaBillingGatewayServiceImpl(credentials);    	
+	    	 
+    	BillNotificationResponse  notifyResposne  =    gatewayService.billNotification(billRequest);
+    	
+    	if(notifyResposne.getResponseCode().equals("00")) {
+	    	  paymentTransactionDTO.setAmount(new BigDecimal(Long.valueOf(billRequest.getAmountDebitted())));
+	    	// paymentTransactionDTO.setAmount(billRequest.getAmountDebitted());
+	 		paymentTransactionDTO.setChannel(billRequest.getPaymentChannel());
+	 		paymentTransactionDTO.setDestinationAccount(String.valueOf(billRequest.getIncomeAccount()));
+	 		paymentTransactionDTO.setSourceAccount(billRequest.getDebittedAccount());
+	 		paymentTransactionDTO.setDestinationNarration("Paying Bills into ( "+billRequest.getIncomeAccount()+" )");
+	 		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
+	 		paymentTransactionDTO.setSourceAccountBankCode("");
+	 		// paymentTransactionDTO.setTransactionRef(gatewayService.getCredentials().getTransactionId());
+	 		paymentTransactionDTO.setTransactionRef(credentials.getTransactionId());
+	 		
+	 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
+			producer.send(responseDTO);
+    	}
+		return  notifyResposne;
         
     }
     
@@ -171,11 +205,16 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
     
     
     
+     
+    
+    
     
     @Override
     public ValidateResponse validateTest(){
         
     	RemitaBillingGatewayService  gatewayService =  getRemitaBillingGatewayService();
+    	
+
     	 ValidateRequest validateRequest = new ValidateRequest();
          List<CustomField> customFieldList = new ArrayList<CustomField>();
          List<Value> valueList = new ArrayList<Value>();
@@ -220,9 +259,15 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
          validateRequest.setPayerEmail("euniceswit@gmail.com");
          validateRequest.setPayerName("Eunice Olukitibi");
          validateRequest.setPayerPhone("080339887160");
-    	return   gatewayService.validate(validateRequest);
+  
+		ValidateResponse response =  gatewayService.validate(validateRequest);
+		//logger.info( "result from sdk {}", gson.toJson(response));
+	   return  response;
       
     }
+    
+    
+    
     
     @Override
     public GenerateResponse generateRRRTest(){
@@ -280,6 +325,9 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
 }
     
 	
+    
+
+ 
 	
 	
 }
