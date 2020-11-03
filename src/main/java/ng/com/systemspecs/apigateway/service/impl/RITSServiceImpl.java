@@ -91,10 +91,15 @@ public class RITSServiceImpl  implements RITSService {
 			 		paymentTransactionDTO.setDestinationNarration("Bank Transfer into ( "+singleRequest.getCreditAccount()+" )");
 			 		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
 			 		paymentTransactionDTO.setSourceAccountBankCode(singleRequest.getFromBank()); 
-			 		paymentTransactionDTO.setTransactionRef(credentials.getRequestId());
+			 		paymentTransactionDTO.setTransactionRef((singlePaymentResponse.getData()).getTransRef());
 			 		
+			 		responseDTO.setCode("00");
 			 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
+			 		responseDTO.setMessage("successfull");
 					producer.send(responseDTO);
+		    	}else {
+		    		responseDTO.setCode("99"); 
+			 		responseDTO.setMessage("failed");
 		    	}
 		     return  singlePaymentResponse;
 		    }

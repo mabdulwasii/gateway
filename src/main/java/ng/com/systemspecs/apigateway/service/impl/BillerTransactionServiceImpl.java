@@ -183,11 +183,15 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
 	 		paymentTransactionDTO.setDestinationNarration("Paying Bills into ( "+billRequest.getIncomeAccount()+" )");
 	 		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
 	 		paymentTransactionDTO.setSourceAccountBankCode("");
-	 		// paymentTransactionDTO.setTransactionRef(gatewayService.getCredentials().getTransactionId());
-	 		paymentTransactionDTO.setTransactionRef(credentials.getTransactionId());
+	 	    paymentTransactionDTO.setTransactionRef((notifyResposne.getResponseData()).getPaymentRef()); 
 	 		
+	 		responseDTO.setCode("00");
 	 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
+	 		responseDTO.setMessage("successfull");
 			producer.send(responseDTO);
+    	}else {
+    		responseDTO.setCode("99"); 
+	 		responseDTO.setMessage("failed");
     	}
 		return  notifyResposne;
         
