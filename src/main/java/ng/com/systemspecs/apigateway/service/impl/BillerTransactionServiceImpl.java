@@ -65,10 +65,11 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
 	    @Override
     public   RemitaBillingGatewayService  getRemitaBillingGatewayService() {
     	Credentials credentials = new Credentials(); 
-    	credentials.setPublicKey("MjMyfDQwODE4MzI3fGYyNjU3N2RjMGRjZGE1ZmExYmQ4YzU2M2I0ZjIxMDE0Yzc5MzQ5NjVmYzYxNWJjOWRkZjM2NjM5ZTg3ZTE2ZjQ1MzcxMjVmZjJlMzlmOGI2MjkzMGRhZjc2NTZiNzdjYTZkZGQwZDczZjIxZjA4ZDVlZTQ0NzZiZmY3MzAyZDA0");
-    	credentials.setSecretKey("80bcb41920b30f27ac0fab456c5d79d0a58e622192013649b39d690ddacc8cc2fe37348406339c97c677f4de43bb1137527c3f5e25fd8a5c4bb7ec7ca5fc24af");
-    	credentials.setTransactionId(String.valueOf(System.currentTimeMillis()));
-    	credentials.setEnvironment(EnvironmentType.DEMO);
+    	credentials.setPublicKey("dC5vbW9udWJpQGdtYWlsLmNvbXxiM2RjMDhjZDRlZTc5ZDIxZDQwMjdjOWM3MmI5ZWY0ZDA3MTk2YTRkNGRkMjY3NjNkMGZkYzA4MjM1MzI4OWFhODE5OGM4MjM0NTI2YWI2ZjZkYzNhZmQzNDNkZmIzYmUwNTkxODlmMmNkOTkxNmM5MjVhNjYwZjk0ZTk1OTkwNw==");
+        credentials.setEnvironment(EnvironmentType.DEMO);
+      //  credentials.setTransactionId("857899");
+        credentials.setTransactionId(String.valueOf(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond)));
+        credentials.setSecretKey("98778887778");
     	
     	return  new RemitaBillingGatewayServiceImpl(credentials);    	 
     }
