@@ -70,9 +70,25 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
       //  credentials.setTransactionId("857899");
         credentials.setTransactionId(String.valueOf(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond)));
         credentials.setSecretKey("98778887778");
+		log.debug("Transaction Id = "+credentials.getTransactionId());
     	
     	return  new RemitaBillingGatewayServiceImpl(credentials);    	 
     }
+	
+	
+	
+		    @Override
+    public   RemitaBillingGatewayService  notifyBillingGatewayService() {
+    	Credentials credentials = new Credentials(); 
+    	credentials.setPublicKey("dC5vbW9udWJpQGdtYWlsLmNvbXxiM2RjMDhjZDRlZTc5ZDIxZDQwMjdjOWM3MmI5ZWY0ZDA3MTk2YTRkNGRkMjY3NjNkMGZkYzA4MjM1MzI4OWFhODE5OGM4MjM0NTI2YWI2ZjZkYzNhZmQzNDNkZmIzYmUwNTkxODlmMmNkOTkxNmM5MjVhNjYwZjk0ZTk1OTkwNw==");
+   	credentials.setSecretKey("95ab7ab7b2dc3152e3ab776c8f4bbe0ec5fe87526ee129617f319fb9edf79263a6fd15f1efe78f38ad6f04634dff993ccf9f075bf91f37aa52b61a9bd61c881e");
+   	credentials.setTransactionId(String.valueOf(System.currentTimeMillis()));
+   	credentials.setEnvironment(EnvironmentType.DEMO);
+	log.debug("Transaction Id = "+credentials.getTransactionId());
+    	
+    	return  new RemitaBillingGatewayServiceImpl(credentials);    	 
+    }
+
 
 	
 
@@ -137,7 +153,8 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
     @Override
     public BillNotificationResponse billNotification(BillRequest billRequest){
         
-    	RemitaBillingGatewayService  gatewayService =  getRemitaBillingGatewayService();
+    	RemitaBillingGatewayService  gatewayService =  notifyBillingGatewayService();
+		
     	 return   gatewayService.billNotification(billRequest);
         
     }
@@ -247,7 +264,7 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
     @Override
     public BillNotificationResponse billNotificationTest(){
         
-    RemitaBillingGatewayService  gatewayService =  getRemitaBillingGatewayService(); 
+    RemitaBillingGatewayService  gatewayService =  notifyBillingGatewayService(); 
     BillRequest billRequest = new BillRequest();
     billRequest.setRrr("270007870639");
     billRequest.setAmountDebitted("1000");
