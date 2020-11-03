@@ -188,36 +188,35 @@ public class WalletAccountResource {
 
 
     
-
-    @PostMapping({"/payment","/rits-payment"})
-	  public SinglePaymentResponse singlePayment(SinglePaymentRequest   singleRequest) {
+ @PostMapping({"/payment","/rits-payment"})
+	  public SinglePaymentResponse singlePayment(@RequestBody SinglePaymentRequest   singleRequest) {
     	 return rITSService.singlePayment(singleRequest);
     }
     
 	  
     @PostMapping({"/bulk-payment","/rits-bulk-payment"})
-	  public BulkPaymentResponse postBulkPayment(BulkPaymentRequest request) {
+	  public BulkPaymentResponse postBulkPayment(@RequestBody BulkPaymentRequest request) {
     	 return rITSService.postBulkPayment(request);
     }
 
 
 	  @PostMapping({"/payment-status","/rits-payment-status"})
-	    public PaymentStatusResponse singlePaymentStatus(PaymentStatusRequest request) {
+	    public PaymentStatusResponse singlePaymentStatus(@RequestBody PaymentStatusRequest request) {
 		  return rITSService.singlePaymentStatus(request);
 	  }
 	    
 	  @PostMapping({"/bulk-payment-status","/rits-bulk-payment-status"}) 
-	    public BulkPaymentStatusResponse bulkPaymentStatus(BulkPaymentStatusRequest request) {
+	    public BulkPaymentStatusResponse bulkPaymentStatus(@RequestBody BulkPaymentStatusRequest request) {
 		  return rITSService.bulkPaymentStatus(request);
 	  }
 	    
 	   
 	  @PostMapping({"/verify-account","/rits-account-enquiry"})
-	    public AccountEnquiryResponse getAccountEnquiry(AccountEnqiryRequest accountEnqiryRequest) {
+	    public AccountEnquiryResponse getAccountEnquiry(@RequestBody AccountEnqiryRequest accountEnqiryRequest) {
 		  return rITSService.getAccountEnquiry(accountEnqiryRequest);
 	  } 
 	    
-	  @PostMapping({"/banks/all","/rits-banks"})  
+	  @GetMapping({"/banks/all","/rits-banks"})  
 	    public GetActiveBankResponse getActiveBanks(){
 		      return rITSService.getActiveBanks();
 	    }
