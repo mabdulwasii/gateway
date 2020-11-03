@@ -6,6 +6,7 @@ import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,7 +44,9 @@ public interface PaymentTransactionService {
      * @return the entity.
      */
     Optional<PaymentTransactionDTO> findOne(Long id);
-
+    List<PaymentTransactionDTO> findBySourceAccount(String sourceAccount);
+	List<PaymentTransactionDTO> findByDestinationAccount(String destinationAccount);
+	List<PaymentTransactionDTO> findBySourceAccountName(String sourceAccountName);
     /**
      * Delete the "id" paymentTransaction.
      *

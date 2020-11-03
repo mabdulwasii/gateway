@@ -3,6 +3,7 @@ package ng.com.systemspecs.apigateway.service.kafka.consumer;
 import io.vavr.control.Either;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import ng.com.systemspecs.apigateway.config.KafkaProperties;
 import ng.com.systemspecs.apigateway.domain.PaymentTransaction;
 import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.service.PaymentTransactionService;
+import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.kafka.GenericConsumer;
 import ng.com.systemspecs.apigateway.service.kafka.deserializer.DeserializationError;
@@ -30,67 +32,73 @@ public class TransConsumer extends GenericConsumer<Object> {
 	ExternalRESTClient externalRESTClient;
 
 	private PaymentTransactionService paymentTransactionService;
-    private final Logger log = LoggerFactory.getLogger(TransConsumer.class);
+	private final Logger log = LoggerFactory.getLogger(TransConsumer.class);
 
-    public TransConsumer(@Value("${kafka.consumer.trans.name}") final String topicName, final
-    		KafkaProperties kafkaProperties,PaymentTransactionService paymentTransactionService) {
-        super(topicName, kafkaProperties.getConsumer().get("trans"), kafkaProperties.getPollingTimeout());
-        this.paymentTransactionService = paymentTransactionService;
-    }
+	public TransConsumer(@Value("${kafka.consumer.trans.name}") final String topicName,
+			final KafkaProperties kafkaProperties, PaymentTransactionService paymentTransactionService) {
+		super(topicName, kafkaProperties.getConsumer().get("trans"), kafkaProperties.getPollingTimeout());
+		this.paymentTransactionService = paymentTransactionService;
+	}
 
-    @Override
-    protected void handleMessage(final ConsumerRecord<String, Either<DeserializationError, Object>> record) {
-        final Either<DeserializationError, Object> value = record.value();
-        System.out.println(" TransConsumer The Message 1=========================================================="
-        		+ "=========================================================================================="
-        		+ "============================================================================== "+value);
-        
-        System.out.println(" TransConsumer The Message 2=========================================================="
-        		+ "=========================================================================================="
-        		+ "============================================================================== "+value.get());        
-        if (value.isLeft()) {
-            log.error("Deserialization record failure: {}", value.getLeft());
-        } else {
-        	String result = externalRESTClient.getTransactionConfirmation("ABCD123456789012345678901139");
-        	System.out.println(" result===="+result);
-            // Maybe you could delete the next log.info(...) to avoid disclosing personal user information
-        	
-			/*
-			 * LinkedHashMap<String,Object> map = (LinkedHashMap<String,Object>)
-			 * value.get();
-			 * 
-			 * PaymentTransaction paymentTransaction = new PaymentTransaction();
-			 * paymentTransaction.setAmount((BigDecimal)(map.get("amount")));
-			 * paymentTransaction.setChannel((String)map.get("channel"));
-			 * paymentTransaction.setCurrency((String)map.get("currency"));
-			 * paymentTransaction.setDestinationAccount((String)map.get("destinationAccount"
-			 * )); paymentTransaction.setDestinationAccountBankCode((String)map.get(
-			 * "destinationAccountBankCode"));
-			 * paymentTransaction.setDestinationAccountName((String)map.get(
-			 * "destinationAccountName"));
-			 * paymentTransaction.setDestinationNarration((String)map.get(
-			 * "destinationNarration"));
-			 * paymentTransaction.setPaymenttransID((Long)map.get("paymenttransID"));
-			 * paymentTransaction.setSourceAccount((String)map.get("sourceAccount"));
-			 * paymentTransaction.setSourceAccountBankCode((String)map.get(
-			 * "sourceAccountBankCode"));
-			 * paymentTransaction.setSourceAccountName((String)map.get("sourceAccountName"))
-			 * ; paymentTransaction.setSourceNarration((String)map.get("sourceNarration"));
-			 * paymentTransaction.setTransactionOwner((Profile)map.get("transactionOwner"));
-			 * paymentTransaction.setTransactionRef((String)map.get("transactionRef"));
-			 * paymentTransaction.setTransactionType(null);
-			 * 
-			 * paymentTransactionService.save(paymentTransaction);
-			 * log.info("Handling record: {}", map);
-			 */
-            
-        }
+	@Override
+	protected void handleMessage(final ConsumerRecord<String, Either<DeserializationError, Object>> record) {
+		final Either<DeserializationError, Object> value = record.value();  
+		System.out.println(" TransConsumer The Message 1=========================================================="
+				+ "=========================================================================================="
+				+ "============================================================================== " + value);
 
-        // TODO: Here is where you can handle your messages
-    }
+		System.out.println(" TransConsumer The Message 2=========================================================="
+				+ "=========================================================================================="
+				+ "============================================================================== " + value.get());
+		if (value.isLeft()) {
+			log.error("Deserialization record failure: {}", value.getLeft());
+		} else {
+			System.out.println(" TransConsumer The Message 3=========================================================="
+					+ "=========================================================================================="
+					+ "============================================================================== " + value.get());
+			// String result =
+			// externalRESTClient.getTransactionConfirmation("ABCD123456789012345678901139");
+			// System.out.println(" result===="+result);
+			// Maybe you could delete the next log.info(...) to avoid disclosing personal
+			// user information
 
-    @Bean
-    public void executeKafkaTransRunner() {
-        new SimpleAsyncTaskExecutor().execute(this);
-    }
+			LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) value.get();
+			LinkedHashMap<String, Object> dto = null;
+			System.out.println(" map====================================================== " + map);
+			dto = (LinkedHashMap<String, Object>) map.get("payment_transaction_dto");
+			System.out.println(" dto====================================================== " + dto);
+
+			PaymentTransaction paymentTransaction = new PaymentTransaction();
+			paymentTransaction.setAmount(BigDecimal.valueOf(Double.parseDouble(String.valueOf(dto.get("amount")))));
+			paymentTransaction.setChannel((String) dto.get("channel"));
+			
+			paymentTransaction.setCurrency("NGN");
+			paymentTransaction.setDestinationNarration("WALLET SCHEME");
+			paymentTransaction.setDestinationAccountBankCode("ABC");
+			
+			
+			paymentTransaction.setDestinationAccount((String) dto.get("destination_account"));
+			paymentTransaction.setDestinationAccountBankCode((String) dto.get("source_account_bank_code"));
+			paymentTransaction.setDestinationNarration((String) dto.get("destination_narration"));
+			paymentTransaction.setPaymenttransID(Long.parseLong(String.valueOf(dto.get("paymenttrans_id"))));
+			paymentTransaction.setSourceAccount((String) dto.get("source_account"));
+			paymentTransaction.setSourceAccountBankCode((String) dto.get("source_account_bank_code"));
+			paymentTransaction.setSourceNarration((String) dto.get("destination_narration"));
+			paymentTransaction.setSourceAccountName((String)dto.get("transaction_owner_phone_number"));
+			paymentTransaction.setTransactionRef((String) dto.get("transaction_ref"));
+			paymentTransaction.setTransactionType(null);
+			paymentTransaction.setTransactionDate(LocalDate.now());
+
+			paymentTransactionService.save(paymentTransaction);
+			log.info("Handling record: {}", map);
+
+		}
+
+		// TODO: Here is where you can handle your messages
+	}
+
+	@Bean
+	public void executeKafkaTransRunner() {
+		new SimpleAsyncTaskExecutor().execute(this);
+	}
 }

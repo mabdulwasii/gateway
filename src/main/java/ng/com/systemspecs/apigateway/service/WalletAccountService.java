@@ -2,6 +2,8 @@ package ng.com.systemspecs.apigateway.service;
 
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
+import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
@@ -44,7 +46,7 @@ public interface WalletAccountService {
      */
     void delete(Long id);
     
-    ResponseDTO fund(FundDTO fundDTO);
-    ResponseDTO sendMoney(FundDTO sendMoneyDTO);
+    PaymentResponseDTO fund(FundDTO fundDTO);
+    PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO);
     
 }

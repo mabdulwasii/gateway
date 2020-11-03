@@ -4,6 +4,20 @@ import ng.com.systemspecs.apigateway.service.dto.BillerTransactionDTO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+ 
+import ng.com.systemspecs.remitabillinggateway.service.RemitaBillingGatewayService;
+import ng.com.systemspecs.remitabillinggateway.service.impl.*;
+import ng.com.systemspecs.remitabillinggateway.servicetypes.GetServiceResponse;
+import ng.com.systemspecs.remitabillinggateway.servicetypes.GetServiceResponseData;
+import ng.com.systemspecs.remitabillinggateway.billers.*;
+import ng.com.systemspecs.remitabillinggateway.util.*;
+import ng.com.systemspecs.remitabillinggateway.validate.*;
+import ng.com.systemspecs.remitabillinggateway.rrrdetails.*;
+import ng.com.systemspecs.remitabillinggateway.notification.*;
+import ng.com.systemspecs.remitabillinggateway.paymentstatus.*;
+import ng.com.systemspecs.remitabillinggateway.generaterrr.*;
+import ng.com.systemspecs.remitabillinggateway.configuration.*;
+import ng.com.systemspecs.remitabillinggateway.customfields.*;
 
 import java.util.Optional;
 
@@ -43,4 +57,29 @@ public interface BillerTransactionService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+	
+	
+	 public   RemitaBillingGatewayService  getRemitaBillingGatewayService();
+    
+    public GetRRRDetailsResponse getRRR(String rrr) ;   
+    
+    
+    public ValidateResponse validate(ValidateRequest validateRequest);
+    
+    public GenerateResponse generateRRR(ValidateRequest validateRequest);   
+    
+    
+    public BillNotificationResponse billNotification(BillRequest billRequest);
+    
+    
+    public GetTransactionStatusResponse getTransactionStatus(String transactionId);
+    
+    
+  public ValidateResponse validateTest();
+    
+    public GenerateResponse generateRRRTest();   
+    
+    public BillNotificationResponse billNotificationTest();
+	
+	
 }

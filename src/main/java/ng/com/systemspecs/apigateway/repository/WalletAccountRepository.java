@@ -17,5 +17,5 @@ public interface WalletAccountRepository extends JpaRepository<WalletAccount, Lo
 	
 	@Query("select walletAccount from WalletAccount walletAccount where walletAccount.accountOwner.user.login = ?#{principal.username}")
     List<WalletAccount> findByUserIsCurrentUser();
-	WalletAccount findOneByAccountNumber(String accountNumber);
+	WalletAccount findOneByAccountNumber(Long accountNumber);
 }

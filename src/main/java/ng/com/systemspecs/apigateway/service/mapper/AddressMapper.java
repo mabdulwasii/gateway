@@ -12,12 +12,9 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", uses = {ProfileMapper.class})
 public interface AddressMapper extends EntityMapper<AddressDTO, Address> {
 
-    @Mapping(source = "addressOwner.id", target = "addressOwnerId")
-    @Mapping(source = "addressOwner.phoneNumber", target = "addressOwnerPhoneNumber")
     AddressDTO toDto(Address address);
 
-    @Mapping(source = "addressOwnerId", target = "addressOwner")
-    Address toEntity(AddressDTO addressDTO);
+
 
     default Address fromId(Long id) {
         if (id == null) {

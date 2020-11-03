@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2020-10-21T14:34:38+0100",
-    comments = "version: 1.3.1.Final, compiler: javac, environment: Java 1.8.0_262 (Oracle Corporation)"
+    date = "2020-11-02T23:39:56+0100",
+    comments = "version: 1.3.1.Final, compiler: javac, environment: Java 11.0.9 (Oracle Corporation)"
 )
 @Component
 public class ProfileMapperImpl implements ProfileMapper {
@@ -75,7 +75,6 @@ public class ProfileMapperImpl implements ProfileMapper {
             profileDTO.setGender( profile.getGender().name() );
         }
         profileDTO.setDateOfBirth( profile.getDateOfBirth() );
-        profileDTO.setAddress( profile.getAddress() );
         byte[] photo = profile.getPhoto();
         if ( photo != null ) {
             profileDTO.setPhoto( Arrays.copyOf( photo, photo.length ) );
@@ -105,7 +104,6 @@ public class ProfileMapperImpl implements ProfileMapper {
             profile.setGender( Enum.valueOf( Gender.class, profileDTO.getGender() ) );
         }
         profile.setDateOfBirth( profileDTO.getDateOfBirth() );
-        profile.setAddress( profileDTO.getAddress() );
         byte[] photo = profileDTO.getPhoto();
         if ( photo != null ) {
             profile.setPhoto( Arrays.copyOf( photo, photo.length ) );

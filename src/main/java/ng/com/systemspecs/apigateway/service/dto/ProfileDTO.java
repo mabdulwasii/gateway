@@ -22,7 +22,9 @@ public class ProfileDTO implements Serializable {
 
     private LocalDate dateOfBirth;
 
-    private String address;
+    //private String address;
+    
+    private AddressDTO fullAddress;
 
     @Lob
     private byte[] photo;
@@ -83,13 +85,11 @@ public class ProfileDTO implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
+	/*
+	 * public String getAddress() { return address; }
+	 * 
+	 * public void setAddress(String address) { this.address = address; }
+	 */
 
     public byte[] getPhoto() {
         return photo;
@@ -181,7 +181,7 @@ public class ProfileDTO implements Serializable {
             ", phoneNumber='" + getPhoneNumber() + "'" +
             ", gender='" + getGender() + "'" +
             ", dateOfBirth='" + getDateOfBirth() + "'" +
-            ", address='" + getAddress() + "'" +
+            //", address='" + getAddress() + "'" +
             ", photo='" + getPhoto() + "'" +
             ", bvn='" + getBvn() + "'" +
             ", validID='" + getValidID() + "'" +
@@ -198,5 +198,13 @@ public class ProfileDTO implements Serializable {
 
 	public void setSchemeID(String schemeID) {
 		this.schemeID = schemeID;
+	}
+
+	public AddressDTO getFullAddress() {
+		return fullAddress;
+	}
+
+	public void setFullAddress(AddressDTO fullAddress) {
+		this.fullAddress = fullAddress;
 	}
 }

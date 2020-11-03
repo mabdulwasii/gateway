@@ -23,6 +23,27 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
+
+
+
+import ng.com.systemspecs.remitabillinggateway.service.*;
+import ng.com.systemspecs.remitabillinggateway.servicetypes.GetServiceResponse;
+import ng.com.systemspecs.remitabillinggateway.servicetypes.GetServiceResponseData;
+import ng.com.systemspecs.remitabillinggateway.billers.*;
+import ng.com.systemspecs.remitabillinggateway.util.*;
+import ng.com.systemspecs.remitabillinggateway.validate.*;
+import ng.com.systemspecs.remitabillinggateway.rrrdetails.*;
+import ng.com.systemspecs.remitabillinggateway.notification.*;
+import ng.com.systemspecs.remitabillinggateway.paymentstatus.*;
+import ng.com.systemspecs.remitabillinggateway.generaterrr.*;
+import ng.com.systemspecs.remitabillinggateway.configuration.*;
+import ng.com.systemspecs.remitabillinggateway.configuration.Credentials;
+import ng.com.systemspecs.remitabillinggateway.util.*;
+import ng.com.systemspecs.remitabillinggateway.service.impl.*; 
+import ng.com.systemspecs.remitabillinggateway.customfields.*;
+
+
+
 /**
  * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.BillerTransaction}.
  */
@@ -122,4 +143,54 @@ public class BillerTransactionResource {
         billerTransactionService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+	
+	
+	    
+
+    @GetMapping("/validate-rrr/{rrr}")
+    public GetRRRDetailsResponse getRRR(@PathVariable String rrr) {
+    	return billerTransactionService.getRRR(rrr);
+    }
+    
+    @PostMapping("/validate-request")
+    public ValidateResponse validate(@RequestBody  ValidateRequest validateRequest) {
+    	return billerTransactionService.validate(validateRequest);
+    } 
+    
+    @PostMapping("/generate-rrr")
+    public GenerateResponse generateRRR(@RequestBody ValidateRequest validateRequest) {
+    	return billerTransactionService.generateRRR(validateRequest);
+    }  
+    
+    @PostMapping("/pay-biller-and-notify")
+    public BillNotificationResponse billNotification(@RequestBody BillRequest billRequest) {
+    	return billerTransactionService.billNotification(billRequest);
+    }
+    
+    @GetMapping("/check-transaction-status/{transactionId}")
+    public GetTransactionStatusResponse getTransactionStatus(@PathVariable String transactionId) {
+    	return billerTransactionService.getTransactionStatus(transactionId);
+    }
+    
+    
+    
+    
+    @PostMapping("/validate-request-test")
+    public ValidateResponse validate() {
+    	return billerTransactionService.validateTest();
+    } 
+    
+    @PostMapping("/generate-rrr-test")
+    public GenerateResponse generateRRR() {
+    	return billerTransactionService.generateRRRTest();
+    }  
+    
+    
+    @PostMapping("/pay-biller-and-notify-test")
+    public BillNotificationResponse billNotificationTest() {
+    	return billerTransactionService.billNotificationTest();
+    }
+    
+	
+	
 }

@@ -3,6 +3,8 @@ package ng.com.systemspecs.apigateway.service.dto;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import ng.com.systemspecs.apigateway.domain.enumeration.TransactionType;
 
 /**
@@ -12,6 +14,7 @@ public class PaymentTransactionDTO implements Serializable {
     
     private Long id;
 
+    private LocalDate transactionDate;
     private Long paymenttransID;
 
     private TransactionType transactionType;
@@ -230,4 +233,12 @@ public class PaymentTransactionDTO implements Serializable {
             ", transactionOwnerPhoneNumber='" + getTransactionOwnerPhoneNumber() + "'" +
             "}";
     }
+
+	public LocalDate getTransactionDate() {
+		return transactionDate;
+	}
+
+	public void setTransactionDate(LocalDate transactionDate) {
+		this.transactionDate = transactionDate;
+	}
 }

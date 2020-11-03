@@ -1,6 +1,7 @@
 package ng.com.systemspecs.apigateway.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -19,6 +20,7 @@ public abstract class PaymentTransaction_ {
 	public static volatile SingularAttribute<PaymentTransaction, String> channel;
 	public static volatile SingularAttribute<PaymentTransaction, Long> paymenttransID;
 	public static volatile SingularAttribute<PaymentTransaction, String> transactionRef;
+	public static volatile SingularAttribute<PaymentTransaction, LocalDate> transactionDate;
 	public static volatile SingularAttribute<PaymentTransaction, String> sourceNarration;
 	public static volatile SingularAttribute<PaymentTransaction, String> destinationAccountName;
 	public static volatile SingularAttribute<PaymentTransaction, TransactionType> transactionType;
@@ -36,6 +38,7 @@ public abstract class PaymentTransaction_ {
 	public static final String CHANNEL = "channel";
 	public static final String PAYMENTTRANS_ID = "paymenttransID";
 	public static final String TRANSACTION_REF = "transactionRef";
+	public static final String TRANSACTION_DATE = "transactionDate";
 	public static final String SOURCE_NARRATION = "sourceNarration";
 	public static final String DESTINATION_ACCOUNT_NAME = "destinationAccountName";
 	public static final String TRANSACTION_TYPE = "transactionType";

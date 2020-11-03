@@ -10,12 +10,40 @@ public class FundDTO implements Serializable {
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
-	public String getAccountNumber() {
+	public Long getAccountNumber() {
 		return accountNumber;
 	}
-	public void setAccountNumber(String accountNumber) {
+	public void setAccountNumber(Long accountNumber) {
 		this.accountNumber = accountNumber;
 	}
-	private String accountNumber;
+	public String getChannel() {
+		return channel;
+	}
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+	public String getSourceBankCode() {
+		return sourceBankCode;
+	}
+	public void setSourceBankCode(String sourceBankCode) {
+		this.sourceBankCode = sourceBankCode;
+	}
+	public String getSourceAccountNumber() {
+		return sourceAccountNumber;
+	}
+	public void setSourceAccountNumber(String sourceAccountNumber) {
+		this.sourceAccountNumber = sourceAccountNumber;
+	}
+	public String getDestBankCode() {
+		return destBankCode;
+	}
+	public void setDestBankCode(String destBankCode) {
+		this.destBankCode = destBankCode;
+	}
+	private Long accountNumber;
 	private Double amount;
+	private String channel;
+	private String sourceBankCode;
+	private String sourceAccountNumber;
+	private String destBankCode;
 }
