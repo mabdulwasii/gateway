@@ -1,6 +1,7 @@
 package ng.com.systemspecs.apigateway.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,9 +23,8 @@ public interface ExternalRESTClient {
 	@Headers("Content-Type: application/json")
 	void singleInterbankTransfer(BankTransfer bankTransfer);
 	
-		
+	
 	// {{baseUrl}}/{{publicKey}}/{{rrr}}/{{requestId}}/rest.reg
-	@RequestMapping(value = "/billing/receipt/{publicKey}/{rrr}/{requestId}/rest.reg", method = RequestMethod.GET) 
-	Object   getRRRReceipt(@PathVariable("publicKey") String publicKey, @PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId);
-
+	@RequestMapping(value = "/billing/receipt/{publicKey}/{rrr}/{requestId}/rest.reg", method = RequestMethod.GET)
+	byte[]   getRRRReceipt(@PathVariable("publicKey") String publicKey, @PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId);
 }
