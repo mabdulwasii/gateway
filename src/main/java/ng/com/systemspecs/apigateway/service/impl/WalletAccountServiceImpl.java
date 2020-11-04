@@ -133,6 +133,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 		WalletAccount account = walletAccountRepository.findOneByAccountNumber(Long.parseLong(sendMoneyDTO.getSourceAccountNumber()));
 
 		if (account.getCurrentBalance() < sendMoneyDTO.getAmount()) {
+			responseDTO.setError(true);//
 			responseDTO.setCode("failed");
 			responseDTO.setMessage("Insufficient Fund");
 			return responseDTO;

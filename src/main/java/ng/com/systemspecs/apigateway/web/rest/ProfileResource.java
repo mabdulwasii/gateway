@@ -37,6 +37,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -71,13 +72,15 @@ public class ProfileResource {
     private final WalletAccountService walleAccountService;
     private final AddressService addressService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
-    		UserRepository userRepository,
+    		UserRepository userRepository, PasswordEncoder passwordEncoder,
     		AddressService addressService) {
 		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -254,7 +257,8 @@ public class ProfileResource {
 			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
     	}
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
-    	profile.setPin(Integer.valueOf(pinDTO.getPin().hashCode()));
+        String encryptedPassword = passwordEncoder.encode(pinDTO.getPin());
+    	profile.setPin(encryptedPassword);
     	profile.setProfileID("2");
     	profile=profileService.save(profile);
 
