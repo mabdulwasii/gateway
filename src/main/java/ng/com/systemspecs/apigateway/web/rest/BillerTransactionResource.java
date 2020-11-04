@@ -22,9 +22,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
-
-
+ 
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
 
 import ng.com.systemspecs.remitabillinggateway.service.*;
 import ng.com.systemspecs.remitabillinggateway.servicetypes.GetServiceResponse;
@@ -60,8 +59,9 @@ public class BillerTransactionResource {
 
     private final BillerTransactionService billerTransactionService;
 
-    public BillerTransactionResource(BillerTransactionService billerTransactionService) {
+     public BillerTransactionResource(BillerTransactionService billerTransactionService, ExternalRESTClient  externalRESTClient) {
         this.billerTransactionService = billerTransactionService;
+        this.externalRESTClient =  externalRESTClient;
     }
 
     /**
@@ -191,6 +191,11 @@ public class BillerTransactionResource {
     	return billerTransactionService.billNotificationTest();
     }
     
+	  @GetMapping("/billing/receipt/{rrr}/{requestId}/rest.reg")
+    public Object getRRRReceipt(@PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId) {
+    	String  publicKey  = "dC5vbW9udWJpQGdtYWlsLmNvbXxiM2RjMDhjZDRlZTc5ZDIxZDQwMjdjOWM3MmI5ZWY0ZDA3MTk2YTRkNGRkMjY3NjNkMGZkYzA4MjM1MzI4OWFhODE5OGM4MjM0NTI2YWI2ZjZkYzNhZmQzNDNkZmIzYmUwNTkxODlmMmNkOTkxNmM5MjVhNjYwZjk0ZTk1OTkwNw==";
+    	return externalRESTClient.getRRRReceipt(publicKey,rrr,requestId);
+    }
 	
 	
 }

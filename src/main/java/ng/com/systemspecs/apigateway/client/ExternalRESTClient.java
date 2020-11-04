@@ -9,8 +9,10 @@ import feign.Headers;
 import feign.RequestLine;
 import ng.com.systemspecs.apigateway.service.dto.BankTransfer;
 
-@FeignClient(name = "external-service", url = "https://login.remita.net/remita/exapp/api/v1/wallet/services/"
-		+ "core-banking/v1/transaction")
+// 'https://remitademo.net/remita/ecomm/send/api/billing/receipt
+//@FeignClient(name = "external-service", url = "https://login.remita.net/remita/exapp/api/v1/wallet/services/"
+//		+ "core-banking/v1/transaction")
+@FeignClient(name = "external-service", url = "https://remitademo.net/remita/ecomm/send/api") 
 public interface ExternalRESTClient {
 
 	@RequestMapping(value = "/confirmation/{transactionReference}", method = RequestMethod.GET)
@@ -19,4 +21,10 @@ public interface ExternalRESTClient {
 	@RequestMapping(value = "/singleInterbankTransfer", method = RequestMethod.POST)
 	@Headers("Content-Type: application/json")
 	void singleInterbankTransfer(BankTransfer bankTransfer);
+	
+		
+	// {{baseUrl}}/{{publicKey}}/{{rrr}}/{{requestId}}/rest.reg
+	@RequestMapping(value = "/billing/receipt/{publicKey}/{rrr}/{requestId}/rest.reg", method = RequestMethod.GET) 
+	Object   getRRRReceipt(@PathVariable("publicKey") String publicKey, @PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId);
+
 }
