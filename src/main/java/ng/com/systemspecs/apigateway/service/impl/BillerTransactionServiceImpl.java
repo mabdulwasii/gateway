@@ -2,6 +2,7 @@ package ng.com.systemspecs.apigateway.service.impl;
 
 import ng.com.systemspecs.apigateway.service.BillerTransactionService;
 import ng.com.systemspecs.apigateway.domain.BillerTransaction;
+import ng.com.systemspecs.apigateway.domain.enumeration.TransactionType;
 import ng.com.systemspecs.apigateway.repository.BillerTransactionRepository;
 import ng.com.systemspecs.apigateway.service.dto.BillerTransactionDTO;
 import ng.com.systemspecs.apigateway.service.mapper.BillerTransactionMapper;
@@ -40,6 +41,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import  java.util.List;
 import  java.util.ArrayList;
 import  java.math.BigDecimal;
+
 
 /**
  * Service Implementation for managing {@link BillerTransaction}.
@@ -158,7 +160,7 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
     }
     
     
-    @Override
+       @Override
     public BillNotificationResponse billNotification(BillRequest billRequest){
     	PaymentResponseDTO responseDTO = new PaymentResponseDTO();
     	PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
@@ -172,22 +174,29 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
 	    	
 		RemitaBillingGatewayService  gatewayService =  new RemitaBillingGatewayServiceImpl(credentials);    	
 	    	 
+		String  amount  = billRequest.getAmountDebitted();
+		String  debitAccount  = billRequest.getDebittedAccount();
+		String  creditAccount  = billRequest.getIncomeAccount();
+		String  channel  = billRequest.getPaymentChannel(); 
+				
     	BillNotificationResponse  notifyResposne  =    gatewayService.billNotification(billRequest);
     	
 		responseDTO.setCode(notifyResposne.getResponseCode()); 
  		responseDTO.setMessage(notifyResposne.getResponseMsg());
+ 		
+ 		
 		
     	if(notifyResposne.getResponseCode().equals("00")) {
-	    	  paymentTransactionDTO.setAmount(new BigDecimal(Long.valueOf(billRequest.getAmountDebitted())));
-	    	// paymentTransactionDTO.setAmount(billRequest.getAmountDebitted());
-	 		paymentTransactionDTO.setChannel(billRequest.getPaymentChannel());
-	 		paymentTransactionDTO.setDestinationAccount(String.valueOf(billRequest.getIncomeAccount()));
-	 		paymentTransactionDTO.setSourceAccount(billRequest.getDebittedAccount());
-	 		paymentTransactionDTO.setDestinationNarration("Paying Bills into ( "+billRequest.getIncomeAccount()+" )");
+	    	  paymentTransactionDTO.setAmount(new BigDecimal(amount)); 
+	 		paymentTransactionDTO.setChannel(channel);
+	 		paymentTransactionDTO.setDestinationAccount(creditAccount);
+	 		paymentTransactionDTO.setSourceAccount(debitAccount);
+			paymentTransactionDTO.setSourceNarration("Bill(s) payment from ( "+debitAccount+" )");
+	 		paymentTransactionDTO.setDestinationNarration("Paying Bills into ( "+creditAccount+" )");
 	 		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
 	 		paymentTransactionDTO.setSourceAccountBankCode("");
-			 paymentTransactionDTO.setTransactionRef(credentials.getTransactionId()); 
-	 	  //  paymentTransactionDTO.setTransactionRef((notifyResposne.getResponseData()).getPaymentRef()); 
+			 paymentTransactionDTO.setTransactionRef(credentials.getTransactionId());  
+			 paymentTransactionDTO.setTransactionType(TransactionType.BANK_ACCOUNT_TRANSFER);
 	 		 
 	 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO); 
 			producer.send(responseDTO);
