@@ -174,6 +174,9 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
 	    	 
     	BillNotificationResponse  notifyResposne  =    gatewayService.billNotification(billRequest);
     	
+		responseDTO.setCode(notifyResposne.getResponseCode()); 
+ 		responseDTO.setMessage(notifyResposne.getResponseMsg());
+		
     	if(notifyResposne.getResponseCode().equals("00")) {
 	    	  paymentTransactionDTO.setAmount(new BigDecimal(Long.valueOf(billRequest.getAmountDebitted())));
 	    	// paymentTransactionDTO.setAmount(billRequest.getAmountDebitted());
@@ -183,7 +186,8 @@ public class BillerTransactionServiceImpl implements BillerTransactionService {
 	 		paymentTransactionDTO.setDestinationNarration("Paying Bills into ( "+billRequest.getIncomeAccount()+" )");
 	 		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
 	 		paymentTransactionDTO.setSourceAccountBankCode("");
-	 	    paymentTransactionDTO.setTransactionRef((notifyResposne.getResponseData()).getPaymentRef()); 
+			 paymentTransactionDTO.setTransactionRef(credentials.getTransactionId()); 
+	 	  //  paymentTransactionDTO.setTransactionRef((notifyResposne.getResponseData()).getPaymentRef()); 
 	 		
 	 		responseDTO.setCode("00");
 	 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
