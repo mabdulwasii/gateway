@@ -30,7 +30,7 @@ public class FCMService {
 		return AndroidConfig.builder().setTtl(Duration.ofMinutes(2).toMillis()).setCollapseKey(topic)
 				.setPriority(AndroidConfig.Priority.HIGH)
 				.setNotification(
-						AndroidNotification.builder().setSound("default").setColor("default").setTag(topic).build())
+						AndroidNotification.builder().setSound("default").setColor("#FFA500").setTag(topic).build())
 				.build();
 	}
 
