@@ -23,7 +23,7 @@ import  ng.com.systemspecs.remitarits.service.*;
 import  ng.com.systemspecs.remitarits.service.impl.*;
  
  
-
+import ng.com.systemspecs.apigateway.domain.enumeration.TransactionType;
 import ng.com.systemspecs.apigateway.service.RITSService;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO; 
@@ -61,8 +61,7 @@ public class RITSServiceImpl  implements RITSService {
 	}
 	
 	
-	
-	  @Override
+	 @Override
 	  public SinglePaymentResponse singlePayment(SinglePaymentRequest   singleRequest){
 		  PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 	    	PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
@@ -79,27 +78,36 @@ public class RITSServiceImpl  implements RITSService {
 		       RemitaRITSService  ritsService  =  new RemitaRITSServiceImpl(credentials);
 		    //    RemitaRITSService  ritsService  = getRemitaRITSService();
 		        singleRequest.setTransRef(String.valueOf(new Random().nextLong()));
-		        log.info("Payment transaction_id  = %s",singleRequest.getTransRef());
+		        log.info("request_id  = "+credentials.getRequestId()); 
+		        String  amount   =  singleRequest.getAmount();
+		        String  creditAccount   =  singleRequest.getCreditAccount();
+		        String  debitAccount   =  singleRequest.getDebitAccount();
+		        String  fromBank  =  singleRequest.getFromBank();
+		        String  toBank   =  singleRequest.getToBank();
 		        SinglePaymentResponse  singlePaymentResponse  =  ritsService.singlePayment(singleRequest);
 		        
+		    	responseDTO.setCode((singlePaymentResponse.getData()).getResponseCode()); 
+		 		// responseDTO.setMessage((singlePaymentResponse.getData()).getResponseMsg());
+		 		
 		    	if((singlePaymentResponse.getData()).getResponseCode().equals("00")) {
-			    	//  paymentTransactionDTO.setAmount(new BigDecimal(Long.valueOf(singleRequest.getAmount())));
-			    	// paymentTransactionDTO.setAmount(billRequest.getAmountDebitted());
+			        paymentTransactionDTO.setAmount(new BigDecimal(amount)); 
 			 		paymentTransactionDTO.setChannel("BANK");
 			 		paymentTransactionDTO.setDestinationAccount(String.valueOf(singleRequest.getCreditAccount()));
-			 		paymentTransactionDTO.setSourceAccount(singleRequest.getDebitAccount());
-			 		paymentTransactionDTO.setDestinationNarration("Bank Transfer into ( "+singleRequest.getCreditAccount()+" )");
+			 		paymentTransactionDTO.setSourceAccount(debitAccount);
+					paymentTransactionDTO.setSourceNarration("Bank transfer  from ( "+debitAccount+" )");
+			 		paymentTransactionDTO.setDestinationNarration("Bank Transfer into ( "+creditAccount+" )");
 			 		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
-			 		paymentTransactionDTO.setSourceAccountBankCode(singleRequest.getFromBank()); 
+			 		paymentTransactionDTO.setSourceAccountBankCode(fromBank); 
+			 		paymentTransactionDTO.setDestinationAccountBankCode(toBank); 
 			 		paymentTransactionDTO.setTransactionRef((singlePaymentResponse.getData()).getTransRef());
-			 		
-			 		responseDTO.setCode("00");
-			 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
-			 		responseDTO.setMessage("successfull");
+					paymentTransactionDTO.setTransactionType(TransactionType.BANK_ACCOUNT_TRANSFER);
+			 		 
+			 		log.debug("creditAccount = "+creditAccount);
+			 		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO); 
 					producer.send(responseDTO);
-		    	}else {
-		    		responseDTO.setCode("99"); 
-			 		responseDTO.setMessage("failed");
+					responseDTO.setMessage("successfull");
+		    	} else {
+		    		responseDTO.setMessage("failed");
 		    	}
 		     return  singlePaymentResponse;
 		    }
