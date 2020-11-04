@@ -1,8 +1,11 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
 import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
+import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.SecurityUtils;
+import ng.com.systemspecs.apigateway.service.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.RITSService;
 import ng.com.systemspecs.apigateway.service.UserService;
@@ -20,13 +23,17 @@ import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
+import io.jsonwebtoken.lang.Strings;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
  
 import ng.com.systemspecs.apigateway.web.rest.errors.*;
@@ -64,19 +71,25 @@ import  ng.com.systemspecs.remitarits.service.impl.*;
 public class WalletAccountResource {
 
     private final Logger log = LoggerFactory.getLogger(WalletAccountResource.class);
-
+    private final UserRepository userRepository;
     private static final String ENTITY_NAME = "walletAccount";
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final WalletAccountService walletAccountService;
-	
+    private final ProfileService profileService;
+    private  User theUser;
 	@Autowired
     RITSService  rITSService;
 
-    public WalletAccountResource(WalletAccountService walletAccountService) {
+    public WalletAccountResource(WalletAccountService walletAccountService, ProfileService profileService,
+    		UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.walletAccountService = walletAccountService;
+        this.userRepository = userRepository;
+        this.profileService = profileService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -166,24 +179,34 @@ public class WalletAccountResource {
     }
     @PostMapping("/fund-wallet")
     public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
-        log.debug("REST request to fund WalletAccount : {}", fundDTO);
-		/*
-		 * if (walletAccountDTO.getId() != null) { throw new
-		 * BadRequestAlertException("A new walletAccount cannot already have an ID",
-		 * ENTITY_NAME, "idexists"); }
-		 */
-        Random rand = new Random();
         PaymentResponseDTO response = walletAccountService.fund(fundDTO);
         return response;
     }  
     
     @PostMapping("/send-money")
-    public PaymentResponseDTO sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
-        log.debug("REST request to send money from WalletAccount : {}", sendMoneyDTO);
-
-        Random rand = new Random();
+    public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
+    	//this.pinCorrect = true;
+        SecurityUtils.getCurrentUserLogin()
+        .flatMap(userRepository::findOneByLogin)
+        .ifPresent(user -> {
+        	this.theUser = user;
+        });
+        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+    	//Profile profile = profileService.
+          String currentEncryptedPin = profile.getPin();
+        if (!passwordEncoder.matches(sendMoneyDTO.getPin(), currentEncryptedPin)) {
+            //throw new InvalidPasswordException();
+        	//pinCorrect = false;
+        	PaymentResponseDTO response = new PaymentResponseDTO();
+        	response.setMessage("invalid pin");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+        }
+       
         PaymentResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
-        return response;
+        if(response.getError()) {
+            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+        }
+        else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
     }    
 
 

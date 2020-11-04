@@ -33,13 +33,13 @@ public class Profile implements Serializable {
     private String profileID;
     
     @Column(name = "xxxx")
-    private Integer pin;
+    private String pin;
 
-    public Integer getPin() {
+    public String getPin() {
 		return pin;
 	}
 
-	public void setPin(Integer pin) {
+	public void setPin(String pin) {
 		this.pin = pin;
 	}
 
