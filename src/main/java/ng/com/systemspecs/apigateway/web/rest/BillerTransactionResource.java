@@ -63,6 +63,8 @@ public class BillerTransactionResource {
     private String applicationName;
 
     private final BillerTransactionService billerTransactionService;
+	
+	private final ExternalRESTClient  externalRESTClient;
 
      public BillerTransactionResource(BillerTransactionService billerTransactionService, ExternalRESTClient  externalRESTClient) {
         this.billerTransactionService = billerTransactionService;
