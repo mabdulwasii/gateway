@@ -14,10 +14,10 @@ import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.web.rest.errors.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
-import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
-import ng.com.systemspecs.apigateway.service.dto.PinDTO;
 import ng.com.systemspecs.apigateway.service.dto.FingerDTO;
 import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
+import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
+import ng.com.systemspecs.apigateway.service.dto.PinDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDataDTO;
 import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
@@ -34,25 +34,32 @@ import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import feign.Headers;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+
 
 /**
  * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.Profile}.
