@@ -1,6 +1,8 @@
 package ng.com.systemspecs.apigateway.service.dto;
 
-public class FingerDTO extends  java.util.concurrent.ConcurrentHashMap<String,String> {
+import java.io.Serializable;
+
+public class FingerDTO implements Serializable {
 
 	private String  key;
 	private String  value;

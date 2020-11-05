@@ -1,6 +1,8 @@
 package ng.com.systemspecs.apigateway.service.dto;
 
-public class NinFingerPrintDTO {
+import java.io.Serializable;
+
+public class NinFingerPrintDTO implements Serializable {
   
 	 private String  refId;
 	 private String  authorisationCode;
