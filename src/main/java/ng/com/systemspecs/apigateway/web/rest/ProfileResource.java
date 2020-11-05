@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient3;
 import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.domain.Profile;
@@ -65,7 +66,7 @@ public class ProfileResource {
     private static long Upper_Bond = 90000000000L;
 
     private static final String ENTITY_NAME = "profile";
-
+	 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
     private final ProfileService profileService;
@@ -73,14 +74,18 @@ public class ProfileResource {
     private final AddressService addressService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+	private final ExternalRESTClient3  externalRESTClient3;
+	 
+	 
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
     		UserRepository userRepository, PasswordEncoder passwordEncoder,
-    		AddressService addressService) {
+    		AddressService addressService, ExternalRESTClient3  externalRESTClient3) {
 		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+		this.externalRESTClient3 = externalRESTClient3;
     }
 
     /**
