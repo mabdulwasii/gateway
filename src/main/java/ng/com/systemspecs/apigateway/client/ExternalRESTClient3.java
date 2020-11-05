@@ -19,13 +19,12 @@ import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
 
 
 
- 
-// url	"http://192.168.19.50:9182/api/ext/referencedataninandfingerprint"
+  
 @FeignClient(name = "external-service-2", url = "http://192.168.19.50:9182/api/ext") 
-public interface ExternalRESTClient3 {
+public interface ExternalRESTClient3 { 
 	
 	@RequestMapping(value = "/referencedataninandfingerprint", method = RequestMethod.POST) 
-	byte[] getFingerPrintData(@RequestHeader Map<String,String> headers, @RequestBody  NinFingerPrintDTO  ninFingerPrintDTO);
+	Object getFingerPrintData(@RequestHeader Map<String,String> headers, @RequestBody  NinFingerPrintDTO  ninFingerPrintDTO);
 	// Object getFingerPrintData(@RequestHeader Map<String,String> headers, @RequestBody  NinFingerPrintDTO  ninFingerPrintDTO);
 
 	

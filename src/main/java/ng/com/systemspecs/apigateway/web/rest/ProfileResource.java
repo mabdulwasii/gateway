@@ -317,8 +317,9 @@ public class ProfileResource {
 
 	
 	
+  
     @PostMapping(value = "/referencedataninandfingerprint")
-    public  ResponseEntity<byte[]>  getFingerPrintData(@RequestBody  NinFingerPrintDTO  ninFingerPrintDTO) {
+    public  Object  getFingerPrintData(@RequestBody  NinFingerPrintDTO  ninFingerPrintDTO) {
     	String base64StringData = "";
        String refId = "nimcDetailsByNin";
  	   String  authCode = "67777777";
@@ -326,27 +327,10 @@ public class ProfileResource {
  	  String signature = "cac9b29a138c039b8e761293c258a999740bc144638b8582c3c4d9cf11ec96792075097eaa44c7f435b9eae831a6d5175f47ecea27fa5fcaed591d12d44410b8";
     	Map<String,String> headers  =  new java.util.HashMap<>();
 	   headers.put("X-API-PUBLIC-KEY", "QzAwMDAxMTU0MDF8MTUwOTM3NzUwMjMzNXw2MGFmMDZjYTk4ZWYwNzgyMjIzMDQ5MTY4MmZhMWYwODFlMTAwODg3NDczMzRkYjFjNWQ5MGMzZmM5ZDQwNDEyMmQ1ZThhZjAwM2YyMmU5ZDA1ZjZkM2QyNTg3OWYyZDFhMDRlYjE4NDM3MjVhODYwOGYxMjdhYmJmNzRkYmQwMA");
-	 
-	   MessageDigest md = null;
-	   String saltedToken = refId + authCode + secretKey;
-	   saltedToken = saltedToken.replaceAll("[\\n\\t ]", "");
-	   try {
-	       md = MessageDigest.getInstance("SHA-512");
-	       md.update(saltedToken.getBytes());
-	       byte byteData[] = md.digest();
-	       base64StringData = java.util.Base64.getEncoder().encodeToString(byteData);
-	       log.debug("Signature =  "+base64StringData);
-	   } catch (Exception e) {
-	      log.info("Could not load MessageDigest: SHA-512");
-	      
-	   }
-	   
-	  // headers.put("X-API-SIGNATURE",base64StringData);
-	   headers.put("X-API-SIGNATURE",signature);
-	   HttpHeaders responseHeaders = new HttpHeaders();
-     	responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-   	  // log.info(String.valueOf(externalRESTClient3.getFingerPrintData(headers,getNinFingerPrintDTO(ninFingerPrintDTO, false))));
-	   return new ResponseEntity<byte[]>(externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO),responseHeaders, HttpStatus.OK);
+	  
+	   headers.put("X-API-SIGNATURE",signature); 
+   	   	return  externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO);
+      
  }
     
  
