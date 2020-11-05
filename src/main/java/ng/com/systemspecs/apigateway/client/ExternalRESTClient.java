@@ -10,9 +10,7 @@ import feign.Headers;
 import feign.RequestLine;
 import ng.com.systemspecs.apigateway.service.dto.BankTransfer;
 
-// 'https://remitademo.net/remita/ecomm/send/api/billing/receipt
-//@FeignClient(name = "external-service", url = "https://login.remita.net/remita/exapp/api/v1/wallet/services/"
-//		+ "core-banking/v1/transaction")
+// 'https://remitademo.net/remita/ecomm/send/api/billing/receipt 
 @FeignClient(name = "external-service", url = "https://remitademo.net/remita/ecomm/send/api") 
 public interface ExternalRESTClient {
 

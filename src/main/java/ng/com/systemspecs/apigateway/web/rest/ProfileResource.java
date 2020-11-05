@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient3;
 import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.domain.Profile;
@@ -15,6 +16,8 @@ import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
 import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
 import ng.com.systemspecs.apigateway.service.dto.PinDTO;
+import ng.com.systemspecs.apigateway.service.dto.FingerDTO;
+import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDataDTO;
 import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
@@ -65,7 +68,7 @@ public class ProfileResource {
     private static long Upper_Bond = 90000000000L;
 
     private static final String ENTITY_NAME = "profile";
-
+	 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
     private final ProfileService profileService;
@@ -73,14 +76,18 @@ public class ProfileResource {
     private final AddressService addressService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+	private final ExternalRESTClient3  externalRESTClient3;
+	 
+	 
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
     		UserRepository userRepository, PasswordEncoder passwordEncoder,
-    		AddressService addressService) {
+    		AddressService addressService, ExternalRESTClient3  externalRESTClient3) {
 		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+		this.externalRESTClient3 = externalRESTClient3;
     }
 
     /**
@@ -305,5 +312,28 @@ public class ProfileResource {
     	String phoneNumber = (String) session.getAttribute("phoneNumber");
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
     	return profile.getProfileID();
-    }      
+    } 
+
+
+	
+	
+  
+    @PostMapping(value = "/referencedataninandfingerprint")
+    public  Object  getFingerPrintData(@RequestBody  NinFingerPrintDTO  ninFingerPrintDTO) {
+    	String base64StringData = "";
+       String refId = "nimcDetailsByNin";
+ 	   String  authCode = "67777777";
+ 	   String secretKey = "610a64055d214207ee638c1dd7c610b1751dcc0510563fdc52c0a4f9f8e36e275c686c6cbae1ea4e636131a265f20f07e8d610a4733f4df974c0f915465048a1"; 	  
+ 	  String signature = "cac9b29a138c039b8e761293c258a999740bc144638b8582c3c4d9cf11ec96792075097eaa44c7f435b9eae831a6d5175f47ecea27fa5fcaed591d12d44410b8";
+    	Map<String,String> headers  =  new java.util.HashMap<>();
+	   headers.put("X-API-PUBLIC-KEY", "QzAwMDAxMTU0MDF8MTUwOTM3NzUwMjMzNXw2MGFmMDZjYTk4ZWYwNzgyMjIzMDQ5MTY4MmZhMWYwODFlMTAwODg3NDczMzRkYjFjNWQ5MGMzZmM5ZDQwNDEyMmQ1ZThhZjAwM2YyMmU5ZDA1ZjZkM2QyNTg3OWYyZDFhMDRlYjE4NDM3MjVhODYwOGYxMjdhYmJmNzRkYmQwMA");
+	  
+	   headers.put("X-API-SIGNATURE",signature); 
+   	   	return  externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO);
+      
+ }
+    
+ 
+
+ 
 }
