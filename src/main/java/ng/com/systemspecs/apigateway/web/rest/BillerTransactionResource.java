@@ -206,7 +206,7 @@ public class BillerTransactionResource {
     	HttpHeaders responseHeaders = new HttpHeaders();
     	responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM); 
     	return new ResponseEntity<byte[]>(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId), responseHeaders, HttpStatus.OK);
-    //	return externalRESTClient.getRRRReceipt(publicKey,rrr,requestId);
+     
     }
 	
 	
