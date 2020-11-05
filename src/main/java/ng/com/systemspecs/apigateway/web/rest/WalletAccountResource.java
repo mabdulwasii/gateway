@@ -119,7 +119,7 @@ public class WalletAccountResource {
     	walletAccountDTO.setAccountNumber(accountNumber);
     	walletAccountDTO.setAccountOwnerPhoneNumber(this.theUser.getLogin());
     	walletAccountDTO.setAccountOwnerId(profile.getId());
-    	walletAccountDTO.setAccountName(profile.getUser().getFirstName());
+    	walletAccountDTO.setAccountName(walletAccountDTO.getAccountName());
     	walletAccountDTO.setDateOpened(LocalDate.now());
     	walletAccountDTO.setCurrentBalance(0.00);
     	walletAccountDTO.setSchemeId(1L);
