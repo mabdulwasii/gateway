@@ -125,6 +125,7 @@ public class UserService {
         profile.setUser(user);
         profile.setPhoneNumber(registeredUserDTO.getPhoneNumber());
         profile.setProfileID("1");
+        profile.setDeviceNotificationToken(registeredUserDTO.getDeviceNotificationToken());
         profileRepository.save(profile);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
