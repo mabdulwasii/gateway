@@ -305,5 +305,40 @@ public class ProfileResource {
     	String phoneNumber = (String) session.getAttribute("phoneNumber");
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
     	return profile.getProfileID();
-    }      
+    } 
+
+
+@PostMapping(value = "/referencedataninandfingerprint")
+    public  ResponseEntity<byte[]>  getFingerPrintData(@RequestBody  NinFingerPrintDTO  ninFingerPrintDTO) {
+    	String base64StringData = "";
+       String refId = "nimcDetailsByNin";
+ 	   String  authCode = "67777777";
+ 	   String secretKey = "610a64055d214207ee638c1dd7c610b1751dcc0510563fdc52c0a4f9f8e36e275c686c6cbae1ea4e636131a265f20f07e8d610a4733f4df974c0f915465048a1"; 	  
+    	
+    	Map<String,String> headers  =  new java.util.HashMap<>();
+	   headers.put("X-API-PUBLIC-KEY", "QzAwMDAxMTU0MDF8MTUwOTM3NzUwMjMzNXw2MGFmMDZjYTk4ZWYwNzgyMjIzMDQ5MTY4MmZhMWYwODFlMTAwODg3NDczMzRkYjFjNWQ5MGMzZmM5ZDQwNDEyMmQ1ZThhZjAwM2YyMmU5ZDA1ZjZkM2QyNTg3OWYyZDFhMDRlYjE4NDM3MjVhODYwOGYxMjdhYmJmNzRkYmQwMA");
+	 
+	   MessageDigest md = null;
+	   String saltedToken = refId + authCode + secretKey;
+	   saltedToken = saltedToken.replaceAll("[\\n\\t ]", "");
+	   try {
+	       md = MessageDigest.getInstance("SHA-512");
+	       md.update(saltedToken.getBytes());
+	       byte byteData[] = md.digest();
+	       base64StringData = java.util.Base64.getEncoder().encodeToString(byteData);
+	   } catch (Exception e) {
+	      log.info("Could not load MessageDigest: SHA-512");
+	      
+	   }
+	   
+	   headers.put("X-API-SIGNATURE",base64StringData);
+	   HttpHeaders responseHeaders = new HttpHeaders();
+     	responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+   	   log.info(String.valueOf(externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO)));
+	   return new ResponseEntity<byte[]>(externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO),responseHeaders, HttpStatus.OK);
+ }
+
+
+
+ 
 }

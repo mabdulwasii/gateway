@@ -199,15 +199,22 @@ public class BillerTransactionResource {
     }
     
 
-	@GetMapping("/billing/receipt/{rrr}/{requestId}/rest.reg")
+	   @GetMapping("/billing/receipt/{rrr}/{requestId}/rest.reg")
     @ResponseStatus(HttpStatus.ACCEPTED) 
     public  ResponseEntity<byte[]> getRRRReceipt(@PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId) {
+    	String  fileName  = "biller_payment_reciept_"+System.currentTimeMillis()+".pdf";
     	String  publicKey  = "dC5vbW9udWJpQGdtYWlsLmNvbXxiM2RjMDhjZDRlZTc5ZDIxZDQwMjdjOWM3MmI5ZWY0ZDA3MTk2YTRkNGRkMjY3NjNkMGZkYzA4MjM1MzI4OWFhODE5OGM4MjM0NTI2YWI2ZjZkYzNhZmQzNDNkZmIzYmUwNTkxODlmMmNkOTkxNmM5MjVhNjYwZjk0ZTk1OTkwNw==";
-    	HttpHeaders responseHeaders = new HttpHeaders();
-    	responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM); 
+    	HttpHeaders responseHeaders = new HttpHeaders(); 
+    	 responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    	ContentDisposition contentDisposition = ContentDisposition.builder("inline")
+    	          .filename(fileName)
+    	          .build(); 
+    	responseHeaders.setContentDisposition(contentDisposition);
+    	// log.info(String.valueOf(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId)));
     	return new ResponseEntity<byte[]>(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId), responseHeaders, HttpStatus.OK);
-     
+    
     }
+    
 	
 	
 }

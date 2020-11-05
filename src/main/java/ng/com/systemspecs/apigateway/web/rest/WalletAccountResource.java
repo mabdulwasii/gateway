@@ -1,6 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
-import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient2;
 import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
@@ -85,15 +85,19 @@ public class WalletAccountResource {
     private final WalletAccountService walletAccountService;
     private final ProfileService profileService;
     private  User theUser;
-	@Autowired
-    RITSService  rITSService;
-
+	private final ExternalRESTClient2  externalRESTClient2;
+	private final RITSService  rITSService;
+	
+	
+ 
     public WalletAccountResource(WalletAccountService walletAccountService, ProfileService profileService,
-    		UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    		UserRepository userRepository, PasswordEncoder passwordEncoder, RITSService  rITSService, ExternalRESTClient2  externalRESTClient2) {
         this.walletAccountService = walletAccountService;
         this.userRepository = userRepository;
         this.profileService = profileService;
         this.passwordEncoder = passwordEncoder;
+		this.rITSService =  rITSService;
+		this.externalRESTClient2  = externalRESTClient2;
     }
 
     /**
@@ -257,5 +261,11 @@ public class WalletAccountResource {
 		      return rITSService.getActiveBanks();
 	    }
 	    
-	    	
+	   @PostMapping("/validate-bvn")
+	    public Object validateBvn( @RequestBody  BvnDTO bvnDTO) {
+		   Map<String,String> headers  =  new java.util.HashMap<>();
+		   headers.put("X-API-PUBLIC-KEY", "U09MRHwyNjk5MzI0MjIzfGRiMjZlNjY5NDVjOGQxMjVjMjBkNzIwZWQ2NTE1ZTgxNTEwNzEyMGRiZGQ3MzZlOTIyYzk1MzA1ZjM4YjM2ZTk5MDUxYTE1YmZhZTc4MDcyM2VmZWU5NGQ0MzM1YmM0NzYxMzJjNDk3M2YzMWI5NWMyOWY5OWUwNDEwMWNjOTEx");
+		  return externalRESTClient2.validateBvn(headers, bvnDTO);
+	  } 
+	  
 }
