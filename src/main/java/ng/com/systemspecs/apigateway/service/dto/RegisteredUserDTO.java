@@ -5,6 +5,14 @@ public class RegisteredUserDTO {
 	private String lastName;
 	private String phoneNumber;
 	private String password;
+	private String deviceNotificationToken;
+	
+	public String getDeviceNotificationToken() {
+		return deviceNotificationToken;
+	}
+	public void setDeviceNotificationToken(String deviceNotificationToken) {
+		this.deviceNotificationToken = deviceNotificationToken;
+	}
 	public String getFirstName() {
 		return firstName;
 	}

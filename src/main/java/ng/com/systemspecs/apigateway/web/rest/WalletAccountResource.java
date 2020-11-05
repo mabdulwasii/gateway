@@ -40,10 +40,12 @@ import ng.com.systemspecs.apigateway.web.rest.errors.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -74,7 +76,9 @@ public class WalletAccountResource {
     private final UserRepository userRepository;
     private static final String ENTITY_NAME = "walletAccount";
     private final PasswordEncoder passwordEncoder;
-
+    private static long Lower_Bond = 10000000000L;
+    private static long Upper_Bond = 90000000000L;
+    
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
@@ -105,11 +109,20 @@ public class WalletAccountResource {
         if (walletAccountDTO.getId() != null) {
             throw new BadRequestAlertException("A new walletAccount cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Random rand = new Random();
-
-        long drand = (long)(rand.nextDouble()*10000000000L);
-        walletAccountDTO.setAccountNumber(drand);
-        walletAccountDTO.setCurrentBalance(0.00);
+        SecurityUtils.getCurrentUserLogin()
+        .flatMap(userRepository::findOneByLogin)
+        .ifPresent(user -> {
+        	this.theUser = user;
+        });
+        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+        long accountNumber = ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond);
+    	walletAccountDTO.setAccountNumber(accountNumber);
+    	walletAccountDTO.setAccountOwnerPhoneNumber(this.theUser.getLogin());
+    	walletAccountDTO.setAccountOwnerId(profile.getId());
+    	walletAccountDTO.setAccountName(profile.getUser().getFirstName());
+    	walletAccountDTO.setDateOpened(LocalDate.now());
+    	walletAccountDTO.setCurrentBalance(0.00);
+    	walletAccountDTO.setSchemeId(1L);
         WalletAccountDTO result = walletAccountService.save(walletAccountDTO);
         return ResponseEntity.created(new URI("/api/wallet-accounts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
