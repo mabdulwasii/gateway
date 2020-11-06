@@ -17,6 +17,7 @@ import ng.com.systemspecs.apigateway.service.dto.BvnDTO;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
+import ng.com.systemspecs.apigateway.service.dto.PushNotificationRequest;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.VerifyBankAccountDTO;
@@ -217,6 +218,14 @@ public class WalletAccountResource {
     	   
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	 
+        if(profile == null) {
+      	  PaymentResponseDTO response = new PaymentResponseDTO();
+        	 response.setCode("55");
+        	 response.setMessage("Please register on and create a wallet.");
+        	 response.setStatus("failed");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+		  }
+        
         return  walletAccountService.fund(profile,fundDTO); 
     }  
     
@@ -239,6 +248,14 @@ public class WalletAccountResource {
   	      }
      
           Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+          
+          if(profile == null) {
+        	  PaymentResponseDTO response = new PaymentResponseDTO();
+          	 response.setCode("55");
+          	 response.setMessage("Please register on and create a wallet.");
+          	 response.setStatus("failed");
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+		  }
     	//Profile profile = profileService.
 	        if(!StringUtils.isEmpty(sendMoneyDTO.getPin())) {
 	        	PaymentResponseDTO response = new PaymentResponseDTO();

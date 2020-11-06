@@ -205,6 +205,14 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 			
 		}else if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.WALLET.toString())) {
 			  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(fundDTO.getSourceAccountNumber()));
+			  if(sourceAccount == null) {
+				  responseDTO.setStatus("failed"); 
+					PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+					notificationRequest.setTitle("Wallet source account does not exist for your profile");
+					notificationRequest.setToken(profile.getDeviceNotificationToken());
+					notificationRequest.setMessage("Error occurs. Transaction failed");
+					pushNotificationService.sendPushNotification(notificationRequest);
+			  }
 			  if (sourceAccount.getCurrentBalance() < fundDTO.getAmount()) {
 					 responseDTO.setCode("99"); 
 					 responseDTO.setStatus("failed");
@@ -260,6 +268,14 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	        
 		 
 		  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
+		  if(sourceAccount == null) {
+			  responseDTO.setStatus("failed"); 
+				PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+				notificationRequest.setTitle("Wallet source account does not exist for your profile");
+				notificationRequest.setToken(profile.getDeviceNotificationToken());
+				notificationRequest.setMessage("Error occurs. Transaction failed");
+				pushNotificationService.sendPushNotification(notificationRequest);
+		  }
 		  if (sourceAccount.getCurrentBalance() < sendMoneyDTO.getAmount()) {
 				 responseDTO.setCode("99"); 
 				 responseDTO.setStatus("failed");
