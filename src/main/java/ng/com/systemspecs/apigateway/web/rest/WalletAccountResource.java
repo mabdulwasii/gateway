@@ -206,6 +206,15 @@ public class WalletAccountResource {
           .ifPresent(user -> {
           	 this.theUser = user;
           }); 
+    	  
+    	  if(this.theUser == null) {
+    		  PaymentResponseDTO response = new PaymentResponseDTO();
+          	response.setCode("41");
+          	response.setMessage("Session expired");
+          	response.setStatus("failed");
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+    	  }
+    	  
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	//Profile profile = profileService.
           String currentEncryptedPin = profile.getPin();
@@ -220,10 +229,7 @@ public class WalletAccountResource {
         }
        
         PaymentResponseDTO response = walletAccountService.fund(profile,fundDTO);
-        if(response.getError()) {
-            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-        }
-        else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
+       return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
     }  
     
     
@@ -235,6 +241,15 @@ public class WalletAccountResource {
         .ifPresent(user -> {
         	this.theUser = user;
         });
+        
+        if(this.theUser == null) {
+  		  PaymentResponseDTO response = new PaymentResponseDTO();
+        	response.setCode("41");
+        	response.setMessage("Session expired");
+        	response.setStatus("failed");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+  	  }
+        
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	//Profile profile = profileService.
           String currentEncryptedPin = profile.getPin();
@@ -247,10 +262,7 @@ public class WalletAccountResource {
         }
        
         PaymentResponseDTO response = walletAccountService.sendMoney(profile, sendMoneyDTO);
-        if(response.getError()) {
-            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-        }
-        else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
+        return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK); 
     }    
 
 
