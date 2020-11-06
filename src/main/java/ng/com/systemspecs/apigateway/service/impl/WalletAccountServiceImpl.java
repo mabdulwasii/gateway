@@ -4,6 +4,7 @@ package ng.com.systemspecs.apigateway.service.impl;
 import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.RITSService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
+import ng.com.systemspecs.apigateway.constant.PaymentChannel;
 import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
@@ -115,31 +116,38 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
 		 
-		if(fundDTO.getChannel() == "CARD") {
+		if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.CARD.toString()) 
+				 ||   (fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.USSD.toString())) {
 			 PaymentStatusRequest   paymentStatusRequest   =  new   PaymentStatusRequest();
 			paymentStatusRequest.setTransRef(fundDTO.getTransRef()); 
 			 PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
-			
 			 
 			// responseDTO.setResponseMsg("Transaction Successful");	
-				if((paymentStatusResponse.getData()).getResponseCode().equals("00") && 
-						(paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
-					responseDTO.setCode((paymentStatusResponse.getData()).getPaymentStatusCode());
-					 producer.send(fundDTO); 
-					 responseDTO.setStatus("successfull");
-					 responseDTO.setMessage("Transaction Successful");				
+				if((paymentStatusResponse.getData()).getResponseCode().equals("00")){ 
+					if(paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
+						responseDTO.setCode((paymentStatusResponse.getData()).getPaymentStatusCode());
+						 producer.send(fundDTO); 
+						 responseDTO.setStatus("successfull");
+						 responseDTO.setMessage("Transaction Successful");				
+					}else {
+						responseDTO.setStatus("failed"); 
+						PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+						notificationRequest.setTitle("Fund Wallet through card");
+						notificationRequest.setToken(profile.getDeviceNotificationToken());
+						notificationRequest.setMessage("Error occurs. Transaction failed");
+						pushNotificationService.sendPushNotification(notificationRequest);
+					}
 				}else {
 					responseDTO.setStatus("failed"); 
 					PushNotificationRequest notificationRequest  = new PushNotificationRequest();
 					notificationRequest.setTitle("Fund Wallet through card");
 					notificationRequest.setToken(profile.getDeviceNotificationToken());
-					notificationRequest.setMessage("Error occurs. Transaction failed");
+					notificationRequest.setMessage("Transaction  could not be completed");
 					pushNotificationService.sendPushNotification(notificationRequest);
 				}
+				
 		   return  responseDTO;
-		}else if(fundDTO.getChannel() == "USSD") {
-			;
-		}else if(fundDTO.getChannel() == "BANK") {
+		 }else if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.BANK.toString())) {
 			 SinglePaymentRequest   singleRequest  =  new   SinglePaymentRequest();
 			singleRequest.setAmount(String.valueOf(fundDTO.getAmount()));
 			singleRequest.setBeneficiaryEmail("qa@test.com");
@@ -166,7 +174,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 				pushNotificationService.sendPushNotification(notificationRequest);
 			}
 			
-		}else if(fundDTO.getChannel() == "WALLET") {
+		}else if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.WALLET.toString())) {
 			  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(fundDTO.getSourceAccountNumber()));
 			  if (sourceAccount.getCurrentBalance() < fundDTO.getAmount()) {
 					 responseDTO.setCode("99"); 
@@ -207,7 +215,8 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 				 responseDTO.setStatus("successfull");
 				 responseDTO.setMessage("Transaction Successful");
 		     				 				 
-				if(sendMoneyDTO.getChannel() == "CARD") {
+				if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.CARD.toString()) 
+						|| (sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.USSD.toString())) {
 					PaymentStatusRequest   paymentStatusRequest   =  new  PaymentStatusRequest();
 					// paymentStatusRequest.setTransRef(sendMoneyDTO.getTransRef()); 
 					PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
@@ -223,9 +232,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 										responseDTO.setStatus("failed");
 									}
 							   return  responseDTO;
-							}else if(sendMoneyDTO.getChannel() == "USSD") {
-								;
-							}else if(sendMoneyDTO.getChannel() == "BANK") {
+							} else if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.BANK.toString())) {
 								SinglePaymentRequest   singleRequest  =  new SinglePaymentRequest();
 								singleRequest.setAmount(String.valueOf(sendMoneyDTO.getAmount()));
 								singleRequest.setBeneficiaryEmail("qa@test.com");
@@ -247,7 +254,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 									responseDTO.setStatus("failed");
 								}
 								
-							}else if(sendMoneyDTO.getChannel() == "WALLET") {
+							}else if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.WALLET.toString())) {
 								WalletAccount sourceAccount2 = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
 								  if (sourceAccount2.getCurrentBalance() < sendMoneyDTO.getAmount()) {
 										 responseDTO.setCode("99"); 
