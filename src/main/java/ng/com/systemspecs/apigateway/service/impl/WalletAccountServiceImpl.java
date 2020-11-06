@@ -124,7 +124,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 			 
 			// responseDTO.setResponseMsg("Transaction Successful");	
 				if((paymentStatusResponse.getData()).getResponseCode().equals("00")){ 
-					if(paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
+					if((paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
 						responseDTO.setCode((paymentStatusResponse.getData()).getPaymentStatusCode());
 						 producer.send(fundDTO); 
 						 responseDTO.setStatus("successfull");
