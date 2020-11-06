@@ -17,6 +17,7 @@ import ng.com.systemspecs.apigateway.service.dto.BvnDTO;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
+import ng.com.systemspecs.apigateway.service.dto.PushNotificationRequest;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.VerifyBankAccountDTO;
@@ -196,36 +197,83 @@ public class WalletAccountResource {
         walletAccountService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+    
+    
     @PostMapping("/fund-wallet")
-    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
-        PaymentResponseDTO response = walletAccountService.fund(fundDTO);
-        return response;
+    public ResponseEntity<PaymentResponseDTO> fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
+    	 
+    	  SecurityUtils.getCurrentUserLogin()
+          .flatMap(userRepository::findOneByLogin)
+          .ifPresent(user -> {
+          	 this.theUser = user;
+          }); 
+    	  
+    	  if(this.theUser == null) {
+    		  PaymentResponseDTO response = new PaymentResponseDTO();
+          	response.setCode("41");
+          	response.setMessage("Session expired");
+          	response.setStatus("failed");
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+    	  }
+    	   
+        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+    	 
+        if(profile == null) {
+      	  PaymentResponseDTO response = new PaymentResponseDTO();
+        	 response.setCode("55");
+        	 response.setMessage("Please register on and create a wallet.");
+        	 response.setStatus("failed");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+		  }
+        
+        return  walletAccountService.fund(profile,fundDTO); 
     }  
     
+    
     @PostMapping("/send-money")
-    public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
+    public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody SendMoneyDTO sendMoneyDTO) throws URISyntaxException {
     	//this.pinCorrect = true;
         SecurityUtils.getCurrentUserLogin()
         .flatMap(userRepository::findOneByLogin)
         .ifPresent(user -> {
         	this.theUser = user;
         });
-        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+        
+         if(this.theUser == null) {
+  		    PaymentResponseDTO response = new PaymentResponseDTO();
+        	response.setCode("41");
+        	response.setMessage("Session expired");
+        	response.setStatus("failed");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+  	      }
+     
+          Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+          
+          if(profile == null) {
+        	  PaymentResponseDTO response = new PaymentResponseDTO();
+          	 response.setCode("55");
+          	 response.setMessage("Please register on and create a wallet.");
+          	 response.setStatus("failed");
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+		  }
     	//Profile profile = profileService.
-          String currentEncryptedPin = profile.getPin();
-        if (!passwordEncoder.matches(sendMoneyDTO.getPin(), currentEncryptedPin)) {
-            //throw new InvalidPasswordException();
-        	//pinCorrect = false;
-        	PaymentResponseDTO response = new PaymentResponseDTO();
-        	response.setMessage("invalid pin");
-            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-        }
-       
-        PaymentResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
-        if(response.getError()) {
-            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-        }
-        else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
+	        if(!StringUtils.isEmpty(sendMoneyDTO.getPin())) {
+	        	PaymentResponseDTO response = new PaymentResponseDTO();
+	        	response.setCode("76");
+	        	response.setMessage("Pin is required for this transaction");
+	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+	        }
+	        
+            String currentEncryptedPin = profile.getPin();
+	        if (!passwordEncoder.matches(passwordEncoder.encode(sendMoneyDTO.getPin()), currentEncryptedPin)) {
+	            //throw new InvalidPasswordException();
+	        	//pinCorrect = false;
+	        	PaymentResponseDTO response = new PaymentResponseDTO();
+	        	response.setMessage("invalid pin");
+	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+	        }
+        
+        return   walletAccountService.sendMoney(profile, sendMoneyDTO);        
     }    
 
 
@@ -270,4 +318,4 @@ public class WalletAccountResource {
 		  return externalRESTClient2.validateBvn(headers, bvnDTO);
 	  } 
 	  
-}
+} 

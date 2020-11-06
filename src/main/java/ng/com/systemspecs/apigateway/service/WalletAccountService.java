@@ -1,14 +1,18 @@
 package ng.com.systemspecs.apigateway.service;
 
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
 
 /**
  * Service Interface for managing {@link ng.com.systemspecs.apigateway.domain.WalletAccount}.
@@ -46,7 +50,7 @@ public interface WalletAccountService {
      */
     void delete(Long id);
     
-    PaymentResponseDTO fund(FundDTO fundDTO);
-    PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO);
+    ResponseEntity<PaymentResponseDTO> fund(Profile  profile,  FundDTO fundDTO);
+    ResponseEntity<PaymentResponseDTO> sendMoney(Profile  profile, SendMoneyDTO sendMoneyDTO);
     
 }

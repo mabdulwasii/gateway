@@ -341,7 +341,16 @@ public class ProfileResource {
       
  }
     
+    
+    @GetMapping(value="/validate-email/{email}")
+    public  PostResponseDTO  doEmailValidation(@PathVariable  String email) {
+    	return null;
+    }
+    
  
+    
+    
+    
 
  
 }

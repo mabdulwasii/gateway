@@ -1,23 +1,50 @@
 package ng.com.systemspecs.apigateway.service.impl;
 
+ 
+import ng.com.systemspecs.apigateway.service.ProfileService;
+import ng.com.systemspecs.apigateway.service.RITSService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
+import ng.com.systemspecs.apigateway.constant.PaymentChannel;
+import ng.com.systemspecs.apigateway.domain.Profile;
+import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
+import ng.com.systemspecs.apigateway.repository.ProfileRepository;
+import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.repository.WalletAccountRepository;
+import ng.com.systemspecs.apigateway.security.SecurityUtils;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDataDTO;
+import ng.com.systemspecs.apigateway.service.dto.PushNotificationRequest;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
+import ng.com.systemspecs.apigateway.service.fcm.PushNotificationService;
 import ng.com.systemspecs.apigateway.service.kafka.producer.TransProducer;
 import ng.com.systemspecs.apigateway.service.mapper.WalletAccountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
+import  ng.com.systemspecs.remitarits.singlepayment.SinglePayment;
+import  ng.com.systemspecs.remitarits.singlepayment.SinglePaymentRequest;
+import  ng.com.systemspecs.remitarits.singlepayment.SinglePaymentResponse;
+ 
+
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatus;
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusRequest;
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusResponse;
+ 
+
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -39,13 +66,17 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
 	private final WalletAccountMapper walletAccountMapper;
 	private final TransProducer producer;
+	private final RITSService  rITSService;
+	private final PushNotificationService  pushNotificationService; 
 
 	public WalletAccountServiceImpl(WalletAccountRepository walletAccountRepository,
-			WalletAccountMapper walletAccountMapper,TransProducer producer) {
+			WalletAccountMapper walletAccountMapper,TransProducer producer,RITSService  rITSService,
+			PushNotificationService  pushNotificationService) {
 		this.walletAccountRepository = walletAccountRepository;
 		this.walletAccountMapper = walletAccountMapper;
 		this.producer = producer;
-		
+		this.rITSService  =  rITSService;
+		this.pushNotificationService  = pushNotificationService; 
 	}
 
 	@Override
@@ -85,93 +116,242 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	}
 
 	@Override
-	public PaymentResponseDTO fund(FundDTO fundDTO) {
+	public  ResponseEntity<PaymentResponseDTO> fund(Profile  profile, FundDTO fundDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
-		WalletAccount account = walletAccountRepository.findOneByAccountNumber(fundDTO.getAccountNumber());
-		/*
-		 * if (account.getCurrentBalance() < fundDTO.getAmount()) {
-		 * responseDTO.setCode("failed"); responseDTO.setMessage("Insufficient Fund");
-		 * return responseDTO; }
-		 */
-		Random random = new Random();
-
-		String generatedString = random.ints(97, 122 + 1).limit(15)
-				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
-
-		responseDTO.setMessage("Transaction Successful");
-		responseDTO.setCode("00");
 		
-		account.setCurrentBalance(account.getCurrentBalance() + fundDTO.getAmount());		
-		account = walletAccountRepository.save(account);
-		paymentTransactionDTO.setAmount(BigDecimal.valueOf(fundDTO.getAmount()));
-		paymentTransactionDTO.setChannel(fundDTO.getChannel());
-		paymentTransactionDTO.setDestinationAccount(String.valueOf(fundDTO.getAccountNumber()));
-		paymentTransactionDTO.setSourceAccount(fundDTO.getSourceAccountNumber());
-		paymentTransactionDTO.setDestinationNarration("Funding the Wallet "+account.getAccountName()+
-				"( "+account.getAccountNumber()+" )");
-		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
-		paymentTransactionDTO.setSourceAccountBankCode(fundDTO.getSourceBankCode());
-		paymentTransactionDTO.setTransactionRef(generatedString);
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String phoneNumber = "";
-		if(principal instanceof UserDetails) {
-			phoneNumber = ((UserDetails)principal).getUsername();
-		}else
-			phoneNumber = principal.toString();
-		
-		paymentTransactionDTO.setTransactionOwnerPhoneNumber(phoneNumber);
-		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
-		producer.send(responseDTO);
-		return responseDTO;
+		  if(StringUtils.isEmpty(fundDTO.getSourceAccountNumber())  || String.valueOf(fundDTO.getSourceAccountNumber()).length() !=  10) {
+      		  PaymentResponseDTO response = new PaymentResponseDTO();
+              	response.setCode("32");
+              	response.setMessage("Invalid bank account number entered for debit");
+              	response.setStatus("failed");
+                  return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+      	  }
+    	  
+    	  if(String.valueOf(fundDTO.getAccountNumber()).length() !=  10) {
+    		  PaymentResponseDTO response = new PaymentResponseDTO();
+            	response.setCode("32");
+            	response.setMessage("Invalid wallet account number entered for credit");
+            	response.setStatus("failed");
+                return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    	  }
+    	  
+    	  if(fundDTO.getAmount() == 0.00) {
+    		  PaymentResponseDTO response = new PaymentResponseDTO();
+          	response.setCode("11");
+          	response.setMessage("Invalid amount entered for funding");
+          	response.setStatus("failed");
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    	  }
+		 
+		if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.CARD.toString()) 
+				 ||   (fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.USSD.toString())) {
+			 PaymentStatusRequest   paymentStatusRequest   =  new   PaymentStatusRequest();
+			paymentStatusRequest.setTransRef(fundDTO.getTransRef()); 
+			 PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
+			 
+			// responseDTO.setResponseMsg("Transaction Successful");	
+				if((paymentStatusResponse.getData()).getResponseCode().equals("00")){ 
+					if((paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
+						responseDTO.setCode((paymentStatusResponse.getData()).getPaymentStatusCode());
+						 producer.send(fundDTO); 
+						 responseDTO.setStatus("successfull");
+						 responseDTO.setMessage("Transaction Successful");		
+						 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+					}else {
+						responseDTO.setStatus("failed"); 
+						PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+						notificationRequest.setTitle("Fund Wallet through card");
+						notificationRequest.setToken(profile.getDeviceNotificationToken());
+						notificationRequest.setMessage("Error occurs. Transaction failed");
+						pushNotificationService.sendPushNotification(notificationRequest);
+					}
+				}else {
+					responseDTO.setStatus("failed"); 
+					PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+					notificationRequest.setTitle("Fund Wallet through card");
+					notificationRequest.setToken(profile.getDeviceNotificationToken());
+					notificationRequest.setMessage("Transaction  could not be completed");
+					pushNotificationService.sendPushNotification(notificationRequest);
+				}
+				 
+		 }else if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.BANK.toString())) {
+			 SinglePaymentRequest   singleRequest  =  new   SinglePaymentRequest();
+			singleRequest.setAmount(String.valueOf(fundDTO.getAmount()));
+			singleRequest.setBeneficiaryEmail("qa@test.com");
+			singleRequest.setCreditAccount("0582915208099");
+			singleRequest.setDebitAccount(fundDTO.getSourceAccountNumber());
+			singleRequest.setFromBank(fundDTO.getSourceBankCode());
+			singleRequest.setNarration("Regular Payment");
+			singleRequest.setToBank("058");
+			singleRequest.setTransRef(String.valueOf(System.currentTimeMillis()));
+			 SinglePaymentResponse paymentResponse  =  rITSService.singlePayment(singleRequest);
+			
+			responseDTO.setCode((paymentResponse.getData()).getResponseCode());
+			// responseDTO.setResponseMsg("Transaction Successful");
+			if((paymentResponse.getData()).getResponseCode().equals("00")) {
+				 producer.send(fundDTO); 
+				 responseDTO.setStatus("successfull");
+				 responseDTO.setMessage("Transaction Successful");				
+				 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+			}else {
+				responseDTO.setStatus("failed"); 
+				PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+				notificationRequest.setTitle("Fund Wallet through bank");
+				notificationRequest.setToken(profile.getDeviceNotificationToken());
+				notificationRequest.setMessage("Error occurs. Transaction failed");
+				pushNotificationService.sendPushNotification(notificationRequest);
+			}
+			
+		}else if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.WALLET.toString())) {
+			  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(fundDTO.getSourceAccountNumber()));
+			  if(sourceAccount == null) {
+				  responseDTO.setStatus("failed"); 
+					PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+					notificationRequest.setTitle("Wallet source account does not exist for your profile");
+					notificationRequest.setToken(profile.getDeviceNotificationToken());
+					notificationRequest.setMessage("Error occurs. Transaction failed");
+					pushNotificationService.sendPushNotification(notificationRequest);
+			  }
+			  if (sourceAccount.getCurrentBalance() < fundDTO.getAmount()) {
+					 responseDTO.setCode("99"); 
+					 responseDTO.setStatus("failed");
+					 responseDTO.setMessage("Insufficient Fund");  
+						PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+						notificationRequest.setTitle("Fund Wallet through wallet"); 
+						notificationRequest.setToken(profile.getDeviceNotificationToken());
+						notificationRequest.setMessage("Error occurs. Transaction failed");
+						pushNotificationService.sendPushNotification(notificationRequest); 
+				 }else {
+					 producer.send(fundDTO);
+					 responseDTO.setCode("00");
+					 responseDTO.setStatus("successfull");
+					 responseDTO.setMessage("Transaction Successful");
+					 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+				 }
+		  
+		}
+		return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 	}
+	
+	
 
 	@Override
-	public PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO) {
+	public ResponseEntity<PaymentResponseDTO> sendMoney(Profile  profile,  SendMoneyDTO sendMoneyDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
-		WalletAccount account = walletAccountRepository.findOneByAccountNumber(Long.parseLong(sendMoneyDTO.getSourceAccountNumber()));
-
-		if (account.getCurrentBalance() < sendMoneyDTO.getAmount()) {
-			responseDTO.setError(true);//
-			responseDTO.setCode("failed");
-			responseDTO.setMessage("Insufficient Fund");
-			return responseDTO;
-		}
-
-		Random random = new Random();
-
-		String generatedString = random.ints(97, 122 + 1).limit(15)
-				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
-
-
-		account.setCurrentBalance(account.getCurrentBalance() - sendMoneyDTO.getAmount());
-		account = walletAccountRepository.save(account);
-		responseDTO.setMessage("Transaction Successful");
-		responseDTO.setCode("00");
 		
-		account.setCurrentBalance(account.getCurrentBalance() + sendMoneyDTO.getAmount());		
-		account = walletAccountRepository.save(account);
-		paymentTransactionDTO.setAmount(BigDecimal.valueOf(sendMoneyDTO.getAmount()));
-		paymentTransactionDTO.setChannel(sendMoneyDTO.getChannel());
-		paymentTransactionDTO.setDestinationAccount(String.valueOf(sendMoneyDTO.getAccountNumber()));
-		paymentTransactionDTO.setSourceAccount(sendMoneyDTO.getSourceAccountNumber());
-		paymentTransactionDTO.setDestinationNarration("Send Money from the Wallet "+account.getAccountName()+
-				"( "+account.getAccountNumber()+" )");
-		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
-		paymentTransactionDTO.setSourceAccountBankCode(sendMoneyDTO.getSourceBankCode());
-		paymentTransactionDTO.setTransactionRef(generatedString);
-		String phoneNumber = null;
-		
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(principal instanceof UserDetails) {
-			phoneNumber = ((UserDetails)principal).getUsername();
-		}else
-			phoneNumber = principal.toString();
-		paymentTransactionDTO.setTransactionOwnerPhoneNumber(phoneNumber);
-		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
-		
-		producer.send(responseDTO);
-		return responseDTO;
+		   
+	      if(StringUtils.isEmpty(sendMoneyDTO.getSourceAccount())  || String.valueOf(sendMoneyDTO.getSourceAccount()).length() !=  10) {
+	  		  PaymentResponseDTO response = new PaymentResponseDTO();
+	          	response.setCode("32");
+	          	response.setMessage("Invalid wallet account number entered for debit");
+	          	response.setStatus("failed");
+	              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	  	  }
+	      
+	      if(StringUtils.isEmpty(sendMoneyDTO.getDestinationAccount())  || String.valueOf(sendMoneyDTO.getDestinationAccount()).length() !=  10) {
+	  		  PaymentResponseDTO response = new PaymentResponseDTO();
+	          	response.setCode("64");
+	          	response.setMessage("Invalid bank account number entered for credit");
+	          	response.setStatus("failed");
+	              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	  	  }
+	  	  
+	  	  if(sendMoneyDTO.getAmount() == 0.00) {
+	  		  PaymentResponseDTO response = new PaymentResponseDTO();
+	        	response.setCode("11");
+	        	response.setMessage("Invalid amount entered for funding");
+	        	response.setStatus("failed");
+	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	  	  }
+	        
+		 
+		  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
+		  if(sourceAccount == null) {
+			  responseDTO.setStatus("failed"); 
+				PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+				notificationRequest.setTitle("Wallet source account does not exist for your profile");
+				notificationRequest.setToken(profile.getDeviceNotificationToken());
+				notificationRequest.setMessage("Error occurs. Transaction failed");
+				pushNotificationService.sendPushNotification(notificationRequest);
+		  }
+		  if (sourceAccount.getCurrentBalance() < sendMoneyDTO.getAmount()) {
+				 responseDTO.setCode("99"); 
+				 responseDTO.setStatus("failed");
+				 responseDTO.setMessage("Insufficient Fund"); 
+			 }else {
+				 producer.send(sendMoneyDTO);
+				 responseDTO.setCode("00");
+				 responseDTO.setStatus("successfull");
+				 responseDTO.setMessage("Transaction Successful");
+		     				 				 
+				if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.CARD.toString()) 
+						|| (sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.USSD.toString())) {
+					PaymentStatusRequest   paymentStatusRequest   =  new  PaymentStatusRequest();
+					// paymentStatusRequest.setTransRef(sendMoneyDTO.getTransRef()); 
+					PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
+					
+					 responseDTO.setCode((paymentStatusResponse.getData()).getResponseCode());
+					// responseDTO.setResponseMsg("Transaction Successful");	
+					 if((paymentStatusResponse.getData()).getResponseCode().equals("00") && 
+								(paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
+										 producer.send(responseDTO); 
+										 responseDTO.setStatus("successfull");
+										 responseDTO.setMessage("Transaction Successful");	
+										 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+									}else {
+										responseDTO.setStatus("failed");
+									} 
+							} else if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.BANK.toString())) {
+								SinglePaymentRequest   singleRequest  =  new SinglePaymentRequest();
+								singleRequest.setAmount(String.valueOf(sendMoneyDTO.getAmount()));
+								singleRequest.setBeneficiaryEmail("qa@test.com");
+								singleRequest.setCreditAccount("0582915208099");
+								singleRequest.setDebitAccount(sendMoneyDTO.getSourceAccount());
+								singleRequest.setFromBank(sendMoneyDTO.getSourceBankCode());
+								singleRequest.setNarration("Regular Payment");
+								singleRequest.setToBank("058");
+								singleRequest.setTransRef(String.valueOf(System.currentTimeMillis()));
+							    SinglePaymentResponse paymentResponse  =  rITSService.singlePayment(singleRequest);
+								
+								responseDTO.setCode((paymentResponse.getData()).getResponseCode());
+								// responseDTO.setResponseMsg("Transaction Successful");
+								if((paymentResponse.getData()).getResponseCode().equals("00")) {
+									 producer.send(sendMoneyDTO); 
+									 responseDTO.setStatus("successfull");
+									 responseDTO.setMessage("Transaction Successful");	
+									 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+								}else {
+									responseDTO.setStatus("failed");
+								}
+								
+							}else if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.WALLET.toString())) {
+								WalletAccount sourceAccount2 = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
+								  if (sourceAccount2.getCurrentBalance() < sendMoneyDTO.getAmount()) {
+										 responseDTO.setCode("99"); 
+										 responseDTO.setStatus("failed");
+										 responseDTO.setMessage("Insufficient Fund");  
+											PushNotificationRequest notificationRequest  = new PushNotificationRequest();
+											notificationRequest.setTitle("Fund Wallet through wallet"); 
+											notificationRequest.setToken(profile.getDeviceNotificationToken());
+											notificationRequest.setMessage("Error occurs. Transaction failed");
+											pushNotificationService.sendPushNotification(notificationRequest);
+									 }else {
+										 producer.send(sendMoneyDTO);
+										 responseDTO.setCode("00");
+										 responseDTO.setStatus("successfull");
+										 responseDTO.setMessage("Transaction Successful");
+										return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+									 }
+										
+							}
+				   
+			 }
+		//  return  responseDTO;
+		return  new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 	}
+	
+	
+	
 }

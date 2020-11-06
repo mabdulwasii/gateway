@@ -200,7 +200,11 @@ public class BillerTransactionResource {
     }
     
 
+<<<<<<< HEAD
 	    @GetMapping("/billing/receipt/{rrr}/{requestId}/rest.reg")
+=======
+	   @GetMapping("/billing/receipt/{rrr}/{requestId}/rest.reg")
+>>>>>>> 4628cec27cf29db0b56fe0eb95dd84d471301bb4
     @ResponseStatus(HttpStatus.ACCEPTED) 
     public  ResponseEntity<byte[]> getRRRReceipt(@PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId) {
     	String  fileName  = "biller_payment_reciept_"+System.currentTimeMillis()+".pdf";
@@ -211,10 +215,15 @@ public class BillerTransactionResource {
     	          .filename(fileName)
     	          .build(); 
     	responseHeaders.setContentDisposition(contentDisposition);
+<<<<<<< HEAD
+    	log.info(String.valueOf(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId)));
+=======
     	// log.info(String.valueOf(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId)));
+>>>>>>> 4628cec27cf29db0b56fe0eb95dd84d471301bb4
     	return new ResponseEntity<byte[]>(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId), responseHeaders, HttpStatus.OK);
     
     }
+    
 	
 	
 }

@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.client.ExternalRESTOTPClient;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.SecurityUtils;
@@ -20,6 +21,8 @@ import ng.com.systemspecs.apigateway.web.rest.UserJWTController.JWTToken;
 import ng.com.systemspecs.apigateway.web.rest.errors.*;
 import ng.com.systemspecs.apigateway.web.rest.vm.KeyAndPasswordVM;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
+import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
+import ng.com.systemspecs.apigateway.service.dto.OTPSendDTO;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.ap.internal.util.Strings;
@@ -38,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * REST controller for managing the current user's account.
@@ -49,6 +53,9 @@ public class AccountResource {
 	private final TokenProvider tokenProvider;
 
 	private final AuthenticationManagerBuilder authenticationManagerBuilder;
+	
+	 private static long Lower_Bond = 100000L;
+	 private static long Upper_Bond = 900000L;
 
 	private static class AccountResourceException extends RuntimeException {
 		private AccountResourceException(String message) {
@@ -64,10 +71,12 @@ public class AccountResource {
 
 	private final MailService mailService;
 	private final ProfileService profileService;
+	private final  ExternalRESTOTPClient   externalRESTOTPClient;
 
 	public AccountResource(UserRepository userRepository, UserService userService, MailService mailService,
 			ProfileService profileService, TokenProvider tokenProvider,
-			AuthenticationManagerBuilder authenticationManagerBuilder) {
+			AuthenticationManagerBuilder authenticationManagerBuilder,
+			ExternalRESTOTPClient  externalRESTOTPClient) {
 
 		this.userRepository = userRepository;
 		this.userService = userService;
@@ -75,6 +84,7 @@ public class AccountResource {
 		this.profileService = profileService;
 		this.tokenProvider = tokenProvider;
 		this.authenticationManagerBuilder = authenticationManagerBuilder;
+		this.externalRESTOTPClient  =  externalRESTOTPClient;
 	}
 
 	/**
@@ -127,9 +137,13 @@ public class AccountResource {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 		session.setAttribute("phoneNumber", registeredUserDTO.getPhoneNumber());
-
-		session.setAttribute("phoneNumber", registeredUserDTO.getPhoneNumber());
-		session.setAttribute("otp", "111111");
+		OTPSendDTO  otpSendDTO  =  new OTPSendDTO();
+		otpSendDTO.setMobileNumber(registeredUserDTO.getPhoneNumber());
+		 
+		String  otp  = String.valueOf(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond));
+		otpSendDTO.setSmsMessage(String.format("Your Remita Verification Code is %s",otp));
+		session.setAttribute("otp", otp);
+		externalRESTOTPClient.sendOTP(otpSendDTO);
 		return new ResponseEntity<>(RespondDTO, httpHeaders, HttpStatus.OK);
 		// mailService.sendActivationEmail(user);
 	}
