@@ -5,6 +5,7 @@ import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
+import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import java.util.List;
@@ -47,6 +48,6 @@ public interface WalletAccountService {
     void delete(Long id);
     
     PaymentResponseDTO fund(FundDTO fundDTO);
-    PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO);
+    PaymentResponseDTO sendMoney(SendMoneyDTO sendMoneyDTO);
     
 }

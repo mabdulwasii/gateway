@@ -203,7 +203,7 @@ public class WalletAccountResource {
     }  
     
     @PostMapping("/send-money")
-    public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
+    public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody SendMoneyDTO sendMoneyDTO) throws URISyntaxException {
     	//this.pinCorrect = true;
         SecurityUtils.getCurrentUserLogin()
         .flatMap(userRepository::findOneByLogin)

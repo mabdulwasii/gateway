@@ -125,9 +125,9 @@ public class WalletAccountServiceImpl implements WalletAccountService {
         	 theUser = user;
         });
 		if(fundDTO.getChannel() == "CARD") {
-			ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusRequest   paymentStatusRequest   =  new  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusRequest();
+			 PaymentStatusRequest   paymentStatusRequest   =  new   PaymentStatusRequest();
 			paymentStatusRequest.setTransRef(fundDTO.getTransRef()); 
-			ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
+			 PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
 			
 			 
 			// responseDTO.setResponseMsg("Transaction Successful");	
@@ -150,7 +150,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 		}else if(fundDTO.getChannel() == "USSD") {
 			;
 		}else if(fundDTO.getChannel() == "BANK") {
-			SinglePaymentRequest   singleRequest  =  new SinglePaymentRequest();
+			 SinglePaymentRequest   singleRequest  =  new   SinglePaymentRequest();
 			singleRequest.setAmount(String.valueOf(fundDTO.getAmount()));
 			singleRequest.setBeneficiaryEmail("qa@test.com");
 			singleRequest.setCreditAccount("0582915208099");
@@ -159,7 +159,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 			singleRequest.setNarration("Regular Payment");
 			singleRequest.setToBank("058");
 			singleRequest.setTransRef(String.valueOf(System.currentTimeMillis()));
-			SinglePaymentResponse paymentResponse  =  singlePayment(singleRequest);
+			 SinglePaymentResponse paymentResponse  =  rITSService.singlePayment(singleRequest);
 			
 			responseDTO.setCode((paymentResponse.getData()).getResponseCode());
 			// responseDTO.setResponseMsg("Transaction Successful");
@@ -225,7 +225,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 		     				 				 
 				if(sendMoneyDTO.getChannel() == "CARD") {
 					PaymentStatusRequest   paymentStatusRequest   =  new  PaymentStatusRequest();
-					 paymentStatusRequest.setTransRef(sendMoneyDTO.getTransRef()); 
+					// paymentStatusRequest.setTransRef(sendMoneyDTO.getTransRef()); 
 					PaymentStatusResponse paymentStatusResponse  = rITSService.singlePaymentStatus(paymentStatusRequest);
 					
 					 responseDTO.setCode((paymentStatusResponse.getData()).getResponseCode());
@@ -251,7 +251,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 								singleRequest.setNarration("Regular Payment");
 								singleRequest.setToBank("058");
 								singleRequest.setTransRef(String.valueOf(System.currentTimeMillis()));
-								SinglePaymentResponse paymentResponse  =  singlePayment(singleRequest);
+							    SinglePaymentResponse paymentResponse  =  rITSService.singlePayment(singleRequest);
 								
 								responseDTO.setCode((paymentResponse.getData()).getResponseCode());
 								// responseDTO.setResponseMsg("Transaction Successful");
@@ -264,8 +264,8 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 								}
 								
 							}else if(sendMoneyDTO.getChannel() == "WALLET") {
-								WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
-								  if (sourceAccount.getCurrentBalance() < sendMoneyDTO.getAmount()) {
+								WalletAccount sourceAccount2 = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
+								  if (sourceAccount2.getCurrentBalance() < sendMoneyDTO.getAmount()) {
 										 responseDTO.setCode("99"); 
 										 responseDTO.setStatus("failed");
 										 responseDTO.setMessage("Insufficient Fund"); 
