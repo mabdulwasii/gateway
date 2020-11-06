@@ -216,19 +216,8 @@ public class WalletAccountResource {
     	  }
     	  
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
-    	//Profile profile = profileService.
-          String currentEncryptedPin = profile.getPin();
-        if (!passwordEncoder.matches(passwordEncoder.encode(fundDTO.getPin()), currentEncryptedPin)) {
-            //throw new InvalidPasswordException();
-        	//pinCorrect = false;
-        	PaymentResponseDTO response = new PaymentResponseDTO();
-        	response.setCode("43");
-        	response.setMessage("invalid pin");
-        	response.setStatus("failed");
-            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-        }
-       
-        PaymentResponseDTO response = walletAccountService.fund(profile,fundDTO);
+    	 
+         PaymentResponseDTO response = walletAccountService.fund(profile,fundDTO);
        return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
     }  
     
