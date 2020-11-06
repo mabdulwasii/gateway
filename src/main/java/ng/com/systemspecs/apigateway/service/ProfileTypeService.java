@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.service;
 
+import ng.com.systemspecs.apigateway.domain.ProfileType;
 import ng.com.systemspecs.apigateway.service.dto.ProfileTypeDTO;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public interface ProfileTypeService {
      * @return the entity.
      */
     Optional<ProfileTypeDTO> findOne(Long id);
+    ProfileType findByProfiletype(String profiletype);
 
     /**
      * Delete the "id" profileType.

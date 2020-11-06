@@ -35,6 +35,7 @@ ng\com\systemspecs\apigateway\service\dto\PushNotificationRequest.class
 ng\com\systemspecs\apigateway\web\rest\AuditResource.class
 ng\com\systemspecs\apigateway\service\mapper\SchemeMapperImpl.class
 ng\com\systemspecs\apigateway\repository\CustomersubscriptionRepository.class
+ng\com\systemspecs\apigateway\web\rest\TestAPI.class
 ng\com\systemspecs\apigateway\domain\WalletAccount_.class
 ng\com\systemspecs\apigateway\service\dto\CustomersubscriptionDTO.class
 ng\com\systemspecs\apigateway\web\rest\vm\RouteVM.class

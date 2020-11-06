@@ -22,6 +22,7 @@ public interface WalletAccountService {
      * @return the persisted entity.
      */
     WalletAccountDTO save(WalletAccountDTO walletAccountDTO);
+    WalletAccount save(WalletAccount walletAccount);
 
     /**
      * Get all the walletAccounts.
@@ -30,6 +31,7 @@ public interface WalletAccountService {
      */
     List<WalletAccountDTO> findAll();
     List<WalletAccountDTO> findByUserIsCurrentUser();
+    WalletAccount findOneByAccountNumber(Long accountNumber);
 
     /**
      * Get the "id" walletAccount.

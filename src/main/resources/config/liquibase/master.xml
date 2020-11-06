@@ -43,5 +43,5 @@
     <include file="config/liquibase/changelog/20201013101413_added_entity_constraints_DoubleEntryLogger.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
-    <include file="config/liquibase/changelog/20201102115435_changelog.xml" relativeToChangelogFile="false" />    
+    <include file="config/liquibase/changelog/20201104083931_changelog.xml" relativeToChangelogFile="false" />    
 </databaseChangeLog>

@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface KyclevelRepository extends JpaRepository<Kyclevel, Long> {
+	Kyclevel findByKycLevel(Integer kycLevel);
 }

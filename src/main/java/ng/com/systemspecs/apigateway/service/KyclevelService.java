@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.service;
 
+import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.service.dto.KyclevelDTO;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public interface KyclevelService {
      * @return the entity.
      */
     Optional<KyclevelDTO> findOne(Long id);
+    Kyclevel findByKycLevel(Integer kycLevel);
 
     /**
      * Delete the "id" kyclevel.

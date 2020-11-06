@@ -173,4 +173,14 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 		producer.send(responseDTO);
 		return responseDTO;
 	}
+
+	@Override
+	public WalletAccount findOneByAccountNumber(Long accountNumber) {
+		return walletAccountRepository.findOneByAccountNumber(accountNumber);
+	}
+
+	@Override
+	public WalletAccount save(WalletAccount walletAccount) {
+		return walletAccountRepository.save(walletAccount);
+	}
 }

@@ -1,26 +1,14 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
-import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
-import ng.com.systemspecs.apigateway.domain.User;
-import ng.com.systemspecs.apigateway.security.SecurityUtils;
-import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.RITSService;
-import ng.com.systemspecs.apigateway.service.UserService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
-import ng.com.systemspecs.apigateway.service.dto.BankAccountDTO;
-import ng.com.systemspecs.apigateway.service.dto.BankDTO;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
-import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
-import ng.com.systemspecs.apigateway.service.dto.VerifyBankAccountDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
-
+import ng.com.systemspecs.apigateway.service.kafka.producer.TransProducer;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
-import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,33 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
- 
-import ng.com.systemspecs.apigateway.web.rest.errors.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-
-import java.util.Optional;
- 
-import  ng.com.systemspecs.remitarits.util.*;
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.accountenquiry.*;
 import  ng.com.systemspecs.remitarits.bankenquiry.*; 
 import  ng.com.systemspecs.remitarits.singlepayment.*;
 import  ng.com.systemspecs.remitarits.singlepaymentstatus.*;
-import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.bulkpaymentstatus.*;
-import  ng.com.systemspecs.remitarits.bankenquiry.*;
-import  ng.com.systemspecs.remitarits.configuration.*;
-import  ng.com.systemspecs.remitarits.service.*;
-import  ng.com.systemspecs.remitarits.service.impl.*;
 
 /**
  * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.WalletAccount}.
@@ -71,12 +45,15 @@ public class WalletAccountResource {
     private String applicationName;
 
     private final WalletAccountService walletAccountService;
+	private final TransProducer producer;
 	
 	@Autowired
     RITSService  rITSService;
 
-    public WalletAccountResource(WalletAccountService walletAccountService) {
+    public WalletAccountResource(WalletAccountService walletAccountService,TransProducer producer) {
         this.walletAccountService = walletAccountService;
+        this.producer = producer;
+        
     }
 
     /**
@@ -167,13 +144,10 @@ public class WalletAccountResource {
     @PostMapping("/fund-wallet")
     public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
         log.debug("REST request to fund WalletAccount : {}", fundDTO);
-		/*
-		 * if (walletAccountDTO.getId() != null) { throw new
-		 * BadRequestAlertException("A new walletAccount cannot already have an ID",
-		 * ENTITY_NAME, "idexists"); }
-		 */
-        Random rand = new Random();
-        PaymentResponseDTO response = walletAccountService.fund(fundDTO);
+        PaymentResponseDTO response = new PaymentResponseDTO();//walletAccountService.fund(fundDTO);
+        response.setCode("00");
+        response.setMessage("Success");
+        producer.send(fundDTO);
         return response;
     }  
     

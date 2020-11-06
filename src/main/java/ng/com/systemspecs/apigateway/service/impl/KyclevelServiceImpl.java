@@ -65,4 +65,10 @@ public class KyclevelServiceImpl implements KyclevelService {
         log.debug("Request to delete Kyclevel : {}", id);
         kyclevelRepository.deleteById(id);
     }
+
+	@Override
+	public Kyclevel findByKycLevel(Integer kycLevel) {
+		// TODO Auto-generated method stub
+		return kyclevelRepository.findByKycLevel(kycLevel);
+	}
 }
