@@ -218,7 +218,7 @@ public class WalletAccountResource {
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	//Profile profile = profileService.
           String currentEncryptedPin = profile.getPin();
-        if (!passwordEncoder.matches(fundDTO.getPin(), currentEncryptedPin)) {
+        if (!passwordEncoder.matches(passwordEncoder.encode(fundDTO.getPin()), currentEncryptedPin)) {
             //throw new InvalidPasswordException();
         	//pinCorrect = false;
         	PaymentResponseDTO response = new PaymentResponseDTO();
@@ -253,7 +253,7 @@ public class WalletAccountResource {
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	//Profile profile = profileService.
           String currentEncryptedPin = profile.getPin();
-        if (!passwordEncoder.matches(sendMoneyDTO.getPin(), currentEncryptedPin)) {
+        if (!passwordEncoder.matches(passwordEncoder.encode(sendMoneyDTO.getPin()), currentEncryptedPin)) {
             //throw new InvalidPasswordException();
         	//pinCorrect = false;
         	PaymentResponseDTO response = new PaymentResponseDTO();
@@ -307,4 +307,4 @@ public class WalletAccountResource {
 		  return externalRESTClient2.validateBvn(headers, bvnDTO);
 	  } 
 	  
-}
+} 

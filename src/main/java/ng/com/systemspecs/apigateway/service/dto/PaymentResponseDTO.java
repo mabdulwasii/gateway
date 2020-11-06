@@ -3,6 +3,7 @@ package ng.com.systemspecs.apigateway.service.dto;
 public class PaymentResponseDTO {
 	private String message;
 	private String code;
+	private String status;
 	private Boolean error;
 	public Boolean getError() {
 		return error;
@@ -31,5 +32,12 @@ public class PaymentResponseDTO {
 	}
 	public void setCode(String code) {
 		this.code = code;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = code;
 	}
 }
