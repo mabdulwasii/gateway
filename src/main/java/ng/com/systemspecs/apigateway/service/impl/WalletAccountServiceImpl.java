@@ -26,11 +26,15 @@ import ng.com.systemspecs.apigateway.service.kafka.producer.TransProducer;
 import ng.com.systemspecs.apigateway.service.mapper.WalletAccountMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 import  ng.com.systemspecs.remitarits.singlepayment.SinglePayment;
 import  ng.com.systemspecs.remitarits.singlepayment.SinglePaymentRequest;
 import  ng.com.systemspecs.remitarits.singlepayment.SinglePaymentResponse;
@@ -112,9 +116,33 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	}
 
 	@Override
-	public PaymentResponseDTO fund(Profile  profile, FundDTO fundDTO) {
+	public  ResponseEntity<PaymentResponseDTO> fund(Profile  profile, FundDTO fundDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
+		
+		  if(StringUtils.isEmpty(fundDTO.getSourceAccountNumber())  || String.valueOf(fundDTO.getSourceAccountNumber()).length() !=  10) {
+      		  PaymentResponseDTO response = new PaymentResponseDTO();
+              	response.setCode("32");
+              	response.setMessage("Invalid bank account number entered for debit");
+              	response.setStatus("failed");
+                  return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+      	  }
+    	  
+    	  if(String.valueOf(fundDTO.getAccountNumber()).length() !=  10) {
+    		  PaymentResponseDTO response = new PaymentResponseDTO();
+            	response.setCode("32");
+            	response.setMessage("Invalid wallet account number entered for credit");
+            	response.setStatus("failed");
+                return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    	  }
+    	  
+    	  if(fundDTO.getAmount() == 0.00) {
+    		  PaymentResponseDTO response = new PaymentResponseDTO();
+          	response.setCode("11");
+          	response.setMessage("Invalid amount entered for funding");
+          	response.setStatus("failed");
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    	  }
 		 
 		if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.CARD.toString()) 
 				 ||   (fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.USSD.toString())) {
@@ -128,7 +156,8 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 						responseDTO.setCode((paymentStatusResponse.getData()).getPaymentStatusCode());
 						 producer.send(fundDTO); 
 						 responseDTO.setStatus("successfull");
-						 responseDTO.setMessage("Transaction Successful");				
+						 responseDTO.setMessage("Transaction Successful");		
+						 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 					}else {
 						responseDTO.setStatus("failed"); 
 						PushNotificationRequest notificationRequest  = new PushNotificationRequest();
@@ -145,8 +174,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 					notificationRequest.setMessage("Transaction  could not be completed");
 					pushNotificationService.sendPushNotification(notificationRequest);
 				}
-				
-		   return  responseDTO;
+				 
 		 }else if((fundDTO.getChannel()).equalsIgnoreCase(PaymentChannel.BANK.toString())) {
 			 SinglePaymentRequest   singleRequest  =  new   SinglePaymentRequest();
 			singleRequest.setAmount(String.valueOf(fundDTO.getAmount()));
@@ -165,6 +193,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 				 producer.send(fundDTO); 
 				 responseDTO.setStatus("successfull");
 				 responseDTO.setMessage("Transaction Successful");				
+				 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 			}else {
 				responseDTO.setStatus("failed"); 
 				PushNotificationRequest notificationRequest  = new PushNotificationRequest();
@@ -184,25 +213,51 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 						notificationRequest.setTitle("Fund Wallet through wallet"); 
 						notificationRequest.setToken(profile.getDeviceNotificationToken());
 						notificationRequest.setMessage("Error occurs. Transaction failed");
-						pushNotificationService.sendPushNotification(notificationRequest);
+						pushNotificationService.sendPushNotification(notificationRequest); 
 				 }else {
 					 producer.send(fundDTO);
 					 responseDTO.setCode("00");
 					 responseDTO.setStatus("successfull");
 					 responseDTO.setMessage("Transaction Successful");
-					
+					 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 				 }
 		  
 		}
-	  return  responseDTO;
+		return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	
 
 	@Override
-	public PaymentResponseDTO sendMoney(Profile  profile,  SendMoneyDTO sendMoneyDTO) {
+	public ResponseEntity<PaymentResponseDTO> sendMoney(Profile  profile,  SendMoneyDTO sendMoneyDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
+		
+		   
+	      if(StringUtils.isEmpty(sendMoneyDTO.getSourceAccount())  || String.valueOf(sendMoneyDTO.getSourceAccount()).length() !=  10) {
+	  		  PaymentResponseDTO response = new PaymentResponseDTO();
+	          	response.setCode("32");
+	          	response.setMessage("Invalid wallet account number entered for debit");
+	          	response.setStatus("failed");
+	              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	  	  }
+	      
+	      if(StringUtils.isEmpty(sendMoneyDTO.getDestinationAccount())  || String.valueOf(sendMoneyDTO.getDestinationAccount()).length() !=  10) {
+	  		  PaymentResponseDTO response = new PaymentResponseDTO();
+	          	response.setCode("64");
+	          	response.setMessage("Invalid bank account number entered for credit");
+	          	response.setStatus("failed");
+	              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	  	  }
+	  	  
+	  	  if(sendMoneyDTO.getAmount() == 0.00) {
+	  		  PaymentResponseDTO response = new PaymentResponseDTO();
+	        	response.setCode("11");
+	        	response.setMessage("Invalid amount entered for funding");
+	        	response.setStatus("failed");
+	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+	  	  }
+	        
 		 
 		  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
 		  if (sourceAccount.getCurrentBalance() < sendMoneyDTO.getAmount()) {
@@ -227,11 +282,11 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 								(paymentStatusResponse.getData()).getPaymentStatusCode().equals("00")) {
 										 producer.send(responseDTO); 
 										 responseDTO.setStatus("successfull");
-										 responseDTO.setMessage("Transaction Successful");				
+										 responseDTO.setMessage("Transaction Successful");	
+										 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 									}else {
 										responseDTO.setStatus("failed");
-									}
-							   return  responseDTO;
+									} 
 							} else if((sendMoneyDTO.getChannel()).equalsIgnoreCase(PaymentChannel.BANK.toString())) {
 								SinglePaymentRequest   singleRequest  =  new SinglePaymentRequest();
 								singleRequest.setAmount(String.valueOf(sendMoneyDTO.getAmount()));
@@ -249,7 +304,8 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 								if((paymentResponse.getData()).getResponseCode().equals("00")) {
 									 producer.send(sendMoneyDTO); 
 									 responseDTO.setStatus("successfull");
-									 responseDTO.setMessage("Transaction Successful");				
+									 responseDTO.setMessage("Transaction Successful");	
+									 return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 								}else {
 									responseDTO.setStatus("failed");
 								}
@@ -270,12 +326,14 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 										 responseDTO.setCode("00");
 										 responseDTO.setStatus("successfull");
 										 responseDTO.setMessage("Transaction Successful");
+										return new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 									 }
 										
 							}
 				   
 			 }
-		  return  responseDTO;
+		//  return  responseDTO;
+		return  new  ResponseEntity<>(responseDTO, new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	

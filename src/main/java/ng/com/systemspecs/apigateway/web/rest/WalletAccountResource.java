@@ -214,11 +214,10 @@ public class WalletAccountResource {
           	response.setStatus("failed");
               return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
     	  }
-    	  
+    	   
         Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	 
-         PaymentResponseDTO response = walletAccountService.fund(profile,fundDTO);
-       return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
+        return  walletAccountService.fund(profile,fundDTO); 
     }  
     
     
@@ -231,27 +230,33 @@ public class WalletAccountResource {
         	this.theUser = user;
         });
         
-        if(this.theUser == null) {
-  		  PaymentResponseDTO response = new PaymentResponseDTO();
+         if(this.theUser == null) {
+  		    PaymentResponseDTO response = new PaymentResponseDTO();
         	response.setCode("41");
         	response.setMessage("Session expired");
         	response.setStatus("failed");
             return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
-  	  }
-        
-        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+  	      }
+     
+          Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
     	//Profile profile = profileService.
-          String currentEncryptedPin = profile.getPin();
-        if (!passwordEncoder.matches(passwordEncoder.encode(sendMoneyDTO.getPin()), currentEncryptedPin)) {
-            //throw new InvalidPasswordException();
-        	//pinCorrect = false;
-        	PaymentResponseDTO response = new PaymentResponseDTO();
-        	response.setMessage("invalid pin");
-            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-        }
-       
-        PaymentResponseDTO response = walletAccountService.sendMoney(profile, sendMoneyDTO);
-        return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK); 
+	        if(!StringUtils.isEmpty(sendMoneyDTO.getPin())) {
+	        	PaymentResponseDTO response = new PaymentResponseDTO();
+	        	response.setCode("76");
+	        	response.setMessage("Pin is required for this transaction");
+	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+	        }
+	        
+            String currentEncryptedPin = profile.getPin();
+	        if (!passwordEncoder.matches(passwordEncoder.encode(sendMoneyDTO.getPin()), currentEncryptedPin)) {
+	            //throw new InvalidPasswordException();
+	        	//pinCorrect = false;
+	        	PaymentResponseDTO response = new PaymentResponseDTO();
+	        	response.setMessage("invalid pin");
+	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+	        }
+        
+        return   walletAccountService.sendMoney(profile, sendMoneyDTO);        
     }    
 
 
