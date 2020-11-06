@@ -211,7 +211,7 @@ public class BillerTransactionResource {
     	          .filename(fileName)
     	          .build(); 
     	responseHeaders.setContentDisposition(contentDisposition);
-    	log.info(String.valueOf(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId)));
+    	//log.info(String.valueOf(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId)));
     	return new ResponseEntity<byte[]>(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId), responseHeaders, HttpStatus.OK);
     
     }
