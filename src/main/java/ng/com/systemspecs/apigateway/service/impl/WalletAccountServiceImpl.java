@@ -62,21 +62,16 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	private final WalletAccountMapper walletAccountMapper;
 	private final TransProducer producer;
 	private final RITSService  rITSService;
-	private final PushNotificationService  pushNotificationService;
-	private final UserRepository  userRepository;
-	private final  ProfileService   profileService;
+	private final PushNotificationService  pushNotificationService; 
 
 	public WalletAccountServiceImpl(WalletAccountRepository walletAccountRepository,
 			WalletAccountMapper walletAccountMapper,TransProducer producer,RITSService  rITSService,
-			PushNotificationService  pushNotificationService, UserRepository  userRepository,
-			ProfileService   profileService) {
+			PushNotificationService  pushNotificationService) {
 		this.walletAccountRepository = walletAccountRepository;
 		this.walletAccountMapper = walletAccountMapper;
 		this.producer = producer;
 		this.rITSService  =  rITSService;
-		this.pushNotificationService  = pushNotificationService;
-		this.userRepository  = userRepository;
-		this.profileService  =  profileService;
+		this.pushNotificationService  = pushNotificationService; 
 	}
 
 	@Override
@@ -116,14 +111,10 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	}
 
 	@Override
-	public PaymentResponseDTO fund(FundDTO fundDTO) {
+	public PaymentResponseDTO fund(Profile  profile, FundDTO fundDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
-		User  theUser;		
-	     SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin)
-        .ifPresent(user -> {
-        	 theUser = user;
-        });
+		 
 		if(fundDTO.getChannel() == "CARD") {
 			 PaymentStatusRequest   paymentStatusRequest   =  new   PaymentStatusRequest();
 			paymentStatusRequest.setTransRef(fundDTO.getTransRef()); 
@@ -138,8 +129,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 					 responseDTO.setStatus("successfull");
 					 responseDTO.setMessage("Transaction Successful");				
 				}else {
-					responseDTO.setStatus("failed");
-					Profile  profile  = profileService.findByPhoneNumber(theUser.getLogin());
+					responseDTO.setStatus("failed"); 
 					PushNotificationRequest notificationRequest  = new PushNotificationRequest();
 					notificationRequest.setTitle("Fund Wallet through card");
 					notificationRequest.setToken(profile.getDeviceNotificationToken());
@@ -168,8 +158,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 				 responseDTO.setStatus("successfull");
 				 responseDTO.setMessage("Transaction Successful");				
 			}else {
-				responseDTO.setStatus("failed");
-				Profile  profile  = profileService.findByPhoneNumber(theUser.getLogin());
+				responseDTO.setStatus("failed"); 
 				PushNotificationRequest notificationRequest  = new PushNotificationRequest();
 				notificationRequest.setTitle("Fund Wallet through bank");
 				notificationRequest.setToken(profile.getDeviceNotificationToken());
@@ -182,8 +171,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 			  if (sourceAccount.getCurrentBalance() < fundDTO.getAmount()) {
 					 responseDTO.setCode("99"); 
 					 responseDTO.setStatus("failed");
-					 responseDTO.setMessage("Insufficient Fund"); 
-					 Profile  profile  = profileService.findByPhoneNumber(theUser.getLogin());
+					 responseDTO.setMessage("Insufficient Fund");  
 						PushNotificationRequest notificationRequest  = new PushNotificationRequest();
 						notificationRequest.setTitle("Fund Wallet through wallet"); 
 						notificationRequest.setToken(profile.getDeviceNotificationToken());
@@ -204,14 +192,10 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	
 
 	@Override
-	public PaymentResponseDTO sendMoney(SendMoneyDTO sendMoneyDTO) {
+	public PaymentResponseDTO sendMoney(Profile  profile,  SendMoneyDTO sendMoneyDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
-		User  theUser;		
-	     SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin)
-       .ifPresent(user -> {
-       	 theUser = user;
-       });
+		 
 		  WalletAccount sourceAccount = walletAccountRepository.findOneByAccountNumber(Long.valueOf(sendMoneyDTO.getSourceAccount()));
 		  if (sourceAccount.getCurrentBalance() < sendMoneyDTO.getAmount()) {
 				 responseDTO.setCode("99"); 
@@ -268,8 +252,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 								  if (sourceAccount2.getCurrentBalance() < sendMoneyDTO.getAmount()) {
 										 responseDTO.setCode("99"); 
 										 responseDTO.setStatus("failed");
-										 responseDTO.setMessage("Insufficient Fund"); 
-										 Profile  profile  = profileService.findByPhoneNumber(theUser.getLogin());
+										 responseDTO.setMessage("Insufficient Fund");  
 											PushNotificationRequest notificationRequest  = new PushNotificationRequest();
 											notificationRequest.setTitle("Fund Wallet through wallet"); 
 											notificationRequest.setToken(profile.getDeviceNotificationToken());

@@ -196,11 +196,36 @@ public class WalletAccountResource {
         walletAccountService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+    
+    
     @PostMapping("/fund-wallet")
-    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
-        PaymentResponseDTO response = walletAccountService.fund(fundDTO);
-        return response;
+    public ResponseEntity<PaymentResponseDTO> fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
+    	 
+    	  SecurityUtils.getCurrentUserLogin()
+          .flatMap(userRepository::findOneByLogin)
+          .ifPresent(user -> {
+          	 this.theUser = user;
+          }); 
+        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
+    	//Profile profile = profileService.
+          String currentEncryptedPin = profile.getPin();
+        if (!passwordEncoder.matches(fundDTO.getPin(), currentEncryptedPin)) {
+            //throw new InvalidPasswordException();
+        	//pinCorrect = false;
+        	PaymentResponseDTO response = new PaymentResponseDTO();
+        	response.setCode("43");
+        	response.setMessage("invalid pin");
+        	response.setStatus("failed");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+        }
+       
+        PaymentResponseDTO response = walletAccountService.fund(profile,fundDTO);
+        if(response.getError()) {
+            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+        }
+        else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
     }  
+    
     
     @PostMapping("/send-money")
     public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody SendMoneyDTO sendMoneyDTO) throws URISyntaxException {
@@ -221,7 +246,7 @@ public class WalletAccountResource {
             return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
         }
        
-        PaymentResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
+        PaymentResponseDTO response = walletAccountService.sendMoney(profile, sendMoneyDTO);
         if(response.getError()) {
             return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
         }
