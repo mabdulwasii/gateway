@@ -223,7 +223,7 @@ public class WalletAccountResource {
         	 response.setCode("55");
         	 response.setMessage("Please register on and create a wallet.");
         	 response.setStatus("failed");
-            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
 		  }
         
         return  walletAccountService.fund(profile,fundDTO); 
@@ -254,7 +254,7 @@ public class WalletAccountResource {
           	 response.setCode("55");
           	 response.setMessage("Please register on and create a wallet.");
           	 response.setStatus("failed");
-              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
+              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
 		  }
     	//Profile profile = profileService.
 	        if(!StringUtils.isEmpty(sendMoneyDTO.getPin())) {
