@@ -41,17 +41,17 @@ export const App = (props: IAppProps) => {
             currentLocale={props.currentLocale}
             onLocaleChange={props.setLocale}
             ribbonEnv={props.ribbonEnv}
-            isInProduction={props.isInProduction}
+            isInProduction= {true}//{props.isInProduction}
             isSwaggerEnabled={props.isSwaggerEnabled}
           />
         </ErrorBoundary>
         <div className="container-fluid view-container" id="app-view-container">
-          <Card className="jh-card">
+          {/* <Card className="jh-card"> */}
             <ErrorBoundary>
               <AppRoutes />
             </ErrorBoundary>
-          </Card>
-          <Footer />
+          {/* </Card> */}
+          {/* <Footer /> */}
         </div>
       </div>
     </Router>

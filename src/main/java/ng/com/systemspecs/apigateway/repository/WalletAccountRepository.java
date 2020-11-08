@@ -14,8 +14,9 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface WalletAccountRepository extends JpaRepository<WalletAccount, Long> {
-	
+
 	@Query("select walletAccount from WalletAccount walletAccount where walletAccount.accountOwner.user.login = ?#{principal.username}")
     List<WalletAccount> findByUserIsCurrentUser();
+
 	WalletAccount findOneByAccountNumber(Long accountNumber);
 }

@@ -4,9 +4,6 @@ import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import java.util.List;
@@ -49,8 +46,10 @@ public interface WalletAccountService {
      * @param id the id of the entity.
      */
     void delete(Long id);
-    
-    ResponseEntity<PaymentResponseDTO> fund(Profile  profile,  FundDTO fundDTO);
-    ResponseEntity<PaymentResponseDTO> sendMoney(Profile  profile, SendMoneyDTO sendMoneyDTO);
-    
+
+    PaymentResponseDTO fund(FundDTO fundDTO);
+    PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO);
+
+    WalletAccount findOneByAccountNumber(Long accountNumber);
+
 }

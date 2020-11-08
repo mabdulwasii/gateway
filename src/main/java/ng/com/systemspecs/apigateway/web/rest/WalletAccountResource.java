@@ -21,7 +21,7 @@ import ng.com.systemspecs.apigateway.service.dto.PushNotificationRequest;
 import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
 import ng.com.systemspecs.apigateway.service.dto.VerifyBankAccountDTO;
-import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO; 
+import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -34,10 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
- 
+
 import ng.com.systemspecs.apigateway.web.rest.errors.*;
 
 import java.net.URI;
@@ -54,11 +55,11 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import java.util.Optional;
- 
+
 import  ng.com.systemspecs.remitarits.util.*;
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.accountenquiry.*;
-import  ng.com.systemspecs.remitarits.bankenquiry.*; 
+import  ng.com.systemspecs.remitarits.bankenquiry.*;
 import  ng.com.systemspecs.remitarits.singlepayment.*;
 import  ng.com.systemspecs.remitarits.singlepaymentstatus.*;
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
@@ -81,7 +82,7 @@ public class WalletAccountResource {
     private final PasswordEncoder passwordEncoder;
     private static long Lower_Bond = 10000000000L;
     private static long Upper_Bond = 90000000000L;
-    
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
@@ -90,9 +91,9 @@ public class WalletAccountResource {
     private  User theUser;
 	private final ExternalRESTClient2  externalRESTClient2;
 	private final RITSService  rITSService;
-	
-	
- 
+
+
+
     public WalletAccountResource(WalletAccountService walletAccountService, ProfileService profileService,
     		UserRepository userRepository, PasswordEncoder passwordEncoder, RITSService  rITSService, ExternalRESTClient2  externalRESTClient2) {
         this.walletAccountService = walletAccountService;
@@ -197,39 +198,12 @@ public class WalletAccountResource {
         walletAccountService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
-    
-    
-    @PostMapping("/fund-wallet")
-    public ResponseEntity<PaymentResponseDTO> fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
-    	 
-    	  SecurityUtils.getCurrentUserLogin()
-          .flatMap(userRepository::findOneByLogin)
-          .ifPresent(user -> {
-          	 this.theUser = user;
-          }); 
-    	  
-    	  if(this.theUser == null) {
-    		  PaymentResponseDTO response = new PaymentResponseDTO();
-          	response.setCode("41");
-          	response.setMessage("Session expired");
-          	response.setStatus("failed");
-              return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.GATEWAY_TIMEOUT);
-    	  }
-    	   
-        Profile profile = profileService.findByPhoneNumber(this.theUser.getLogin());
-    	 
-        if(profile == null) {
-      	  PaymentResponseDTO response = new PaymentResponseDTO();
-        	 response.setCode("55");
-        	 response.setMessage("Please register on and create a wallet.");
-        	 response.setStatus("failed");
-            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-		  }
-        
-        return  walletAccountService.fund(profile,fundDTO); 
-    }  
-    
-    
+    @PostMapping(path = "/fund-wallet", consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) {
+        return walletAccountService.fund(fundDTO);
+    }
+
     @PostMapping("/send-money")
     public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody SendMoneyDTO sendMoneyDTO) throws URISyntaxException {
     	//this.pinCorrect = true;
@@ -257,33 +231,30 @@ public class WalletAccountResource {
               return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
 		  }
     	//Profile profile = profileService.
-	        if(!StringUtils.isEmpty(sendMoneyDTO.getPin())) {
-	        	PaymentResponseDTO response = new PaymentResponseDTO();
-	        	response.setCode("76");
-	        	response.setMessage("Pin is required for this transaction");
-	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-	        }
-	        
-            String currentEncryptedPin = profile.getPin();
-	        if (!passwordEncoder.matches(passwordEncoder.encode(sendMoneyDTO.getPin()), currentEncryptedPin)) {
-	            //throw new InvalidPasswordException();
-	        	//pinCorrect = false;
-	        	PaymentResponseDTO response = new PaymentResponseDTO();
-	        	response.setMessage("invalid pin");
-	            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-	        }
-        
-        return   walletAccountService.sendMoney(profile, sendMoneyDTO);        
-    }    
+          String currentEncryptedPin = profile.getPin();
+        if (!passwordEncoder.matches(sendMoneyDTO.getPin(), currentEncryptedPin)) {
+            //throw new InvalidPasswordException();
+        	//pinCorrect = false;
+        	PaymentResponseDTO response = new PaymentResponseDTO();
+        	response.setMessage("invalid pin");
+            return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+        }
+
+        PaymentResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
+        if(response.getError()) {
+            return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+        }
+        else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
+    }
 
 
-    
+
  @PostMapping({"/payment","/rits-payment"})
 	  public SinglePaymentResponse singlePayment(@RequestBody SinglePaymentRequest   singleRequest) {
     	 return rITSService.singlePayment(singleRequest);
     }
-    
-	  
+
+
     @PostMapping({"/bulk-payment","/rits-bulk-payment"})
 	  public BulkPaymentResponse postBulkPayment(@RequestBody BulkPaymentRequest request) {
     	 return rITSService.postBulkPayment(request);
@@ -294,28 +265,28 @@ public class WalletAccountResource {
 	    public PaymentStatusResponse singlePaymentStatus(@RequestBody PaymentStatusRequest request) {
 		  return rITSService.singlePaymentStatus(request);
 	  }
-	    
-	  @PostMapping({"/bulk-payment-status","/rits-bulk-payment-status"}) 
+
+	  @PostMapping({"/bulk-payment-status","/rits-bulk-payment-status"})
 	    public BulkPaymentStatusResponse bulkPaymentStatus(@RequestBody BulkPaymentStatusRequest request) {
 		  return rITSService.bulkPaymentStatus(request);
 	  }
-	    
-	   
+
+
 	  @PostMapping({"/verify-account","/rits-account-enquiry"})
 	    public AccountEnquiryResponse getAccountEnquiry(@RequestBody AccountEnqiryRequest accountEnqiryRequest) {
 		  return rITSService.getAccountEnquiry(accountEnqiryRequest);
-	  } 
-	    
-	  @GetMapping({"/banks/all","/rits-banks"})  
+	  }
+
+	  @GetMapping({"/banks/all","/rits-banks"})
 	    public GetActiveBankResponse getActiveBanks(){
 		      return rITSService.getActiveBanks();
 	    }
-	    
+
 	   @PostMapping("/validate-bvn")
 	    public Object validateBvn( @RequestBody  BvnDTO bvnDTO) {
 		   Map<String,String> headers  =  new java.util.HashMap<>();
 		   headers.put("X-API-PUBLIC-KEY", "U09MRHwyNjk5MzI0MjIzfGRiMjZlNjY5NDVjOGQxMjVjMjBkNzIwZWQ2NTE1ZTgxNTEwNzEyMGRiZGQ3MzZlOTIyYzk1MzA1ZjM4YjM2ZTk5MDUxYTE1YmZhZTc4MDcyM2VmZWU5NGQ0MzM1YmM0NzYxMzJjNDk3M2YzMWI5NWMyOWY5OWUwNDEwMWNjOTEx");
 		  return externalRESTClient2.validateBvn(headers, bvnDTO);
-	  } 
-	  
-} 
+	  }
+
+}
