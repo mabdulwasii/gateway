@@ -3,12 +3,19 @@ package ng.com.systemspecs.apigateway.service.impl;
 import ng.com.systemspecs.apigateway.client.InlineStatusResponse;
 import ng.com.systemspecs.apigateway.domain.PaymentTransaction;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
+import ng.com.systemspecs.apigateway.constant.PaymentChannel;
+import ng.com.systemspecs.apigateway.domain.Profile;
+import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
+import ng.com.systemspecs.apigateway.repository.ProfileRepository;
+import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.repository.WalletAccountRepository;
+import ng.com.systemspecs.apigateway.security.SecurityUtils;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
+import ng.com.systemspecs.apigateway.service.fcm.PushNotificationService;
 import ng.com.systemspecs.apigateway.service.kafka.producer.TransProducer;
 import ng.com.systemspecs.apigateway.service.mapper.WalletAccountMapper;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -20,6 +27,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
+import  ng.com.systemspecs.remitarits.singlepayment.SinglePayment;
+import  ng.com.systemspecs.remitarits.singlepayment.SinglePaymentRequest;
+import  ng.com.systemspecs.remitarits.singlepayment.SinglePaymentResponse;
+ 
+
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatus;
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusRequest;
+import  ng.com.systemspecs.remitarits.singlepaymentstatus.PaymentStatusResponse;
+ 
+
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -130,6 +149,8 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
 		return responseDTO;
 	}
+	
+	
 
     private void buildPaymentResponseDTO(boolean hasError, String message)  {
         responseDTO.setError(hasError);

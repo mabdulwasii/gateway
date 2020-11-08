@@ -49,11 +49,11 @@ public class FundDTO implements Serializable {
 		this.destBankCode = destBankCode;
 	}
 
-	public String getPin() {
-		return pin;
+	public String getTransRef() {
+		return transRef;
 	}
-	public void setPin(String pin) {
-		this.pin = pin;
+	public void setTransRef(String transRef) {
+		this.transRef = transRef;
 	}
 
     public String getTransRef() {

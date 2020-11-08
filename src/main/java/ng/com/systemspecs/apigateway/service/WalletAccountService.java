@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.service;
 
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
@@ -7,6 +8,8 @@ import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
 
 /**
  * Service Interface for managing {@link ng.com.systemspecs.apigateway.domain.WalletAccount}.
