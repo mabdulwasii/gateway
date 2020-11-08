@@ -11,7 +11,7 @@ import ng.com.systemspecs.apigateway.domain.enumeration.TransactionType;
  * A DTO for the {@link ng.com.systemspecs.apigateway.domain.PaymentTransaction} entity.
  */
 public class PaymentTransactionDTO implements Serializable {
-    
+
     private Long id;
 
     private LocalDate transactionDate;
@@ -56,7 +56,31 @@ public class PaymentTransactionDTO implements Serializable {
     private Long transactionOwnerId;
 
     private String transactionOwnerPhoneNumber;
-    
+
+    public PaymentTransactionDTO() {
+    }
+
+    public PaymentTransactionDTO(Long id, LocalDate transactionDate, Long paymenttransID, TransactionType transactionType, String transactionRef, @NotNull BigDecimal amount, @NotNull String channel, @NotNull String currency, @NotNull String sourceAccount, @NotNull String sourceAccountBankCode, String sourceAccountName, @NotNull String sourceNarration, @NotNull String destinationAccount, @NotNull String destinationAccountBankCode, String destinationAccountName, @NotNull String destinationNarration, Long transactionOwnerId, String transactionOwnerPhoneNumber) {
+        this.id = id;
+        this.transactionDate = transactionDate;
+        this.paymenttransID = paymenttransID;
+        this.transactionType = transactionType;
+        this.transactionRef = transactionRef;
+        this.amount = amount;
+        this.channel = channel;
+        this.currency = currency;
+        this.sourceAccount = sourceAccount;
+        this.sourceAccountBankCode = sourceAccountBankCode;
+        this.sourceAccountName = sourceAccountName;
+        this.sourceNarration = sourceNarration;
+        this.destinationAccount = destinationAccount;
+        this.destinationAccountBankCode = destinationAccountBankCode;
+        this.destinationAccountName = destinationAccountName;
+        this.destinationNarration = destinationNarration;
+        this.transactionOwnerId = transactionOwnerId;
+        this.transactionOwnerPhoneNumber = transactionOwnerPhoneNumber;
+    }
+
     public Long getId() {
         return id;
     }
