@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
-public class WalletAccountServiceImpl implements WalletAccountService {
+public abstract class WalletAccountServiceImpl implements WalletAccountService {
 
 	private final Logger log = LoggerFactory.getLogger(WalletAccountServiceImpl.class);
 
@@ -199,8 +199,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
         return  false;
     }
 
-    @Override
-	public PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO) {
+    public PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO) {
 		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
 		WalletAccount account = walletAccountRepository.findOneByAccountNumber(Long.parseLong(sendMoneyDTO.getSourceAccountNumber()));

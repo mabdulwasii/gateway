@@ -56,11 +56,4 @@ public class FundDTO implements Serializable {
 		this.transRef = transRef;
 	}
 
-    public String getTransRef() {
-        return transRef;
-    }
-
-    public void setTransRef(String transRef) {
-        this.transRef = transRef;
-    }
 }
