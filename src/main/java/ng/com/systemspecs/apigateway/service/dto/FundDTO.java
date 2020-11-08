@@ -10,7 +10,8 @@ public class FundDTO implements Serializable {
 	private String sourceAccountNumber;
 	private String destBankCode;
 	private String pin;
-	
+	private String transRef;
+
 	public Double getAmount() {
 		return amount;
 	}
@@ -54,4 +55,12 @@ public class FundDTO implements Serializable {
 	public void setPin(String pin) {
 		this.pin = pin;
 	}
+
+    public String getTransRef() {
+        return transRef;
+    }
+
+    public void setTransRef(String transRef) {
+        this.transRef = transRef;
+    }
 }
