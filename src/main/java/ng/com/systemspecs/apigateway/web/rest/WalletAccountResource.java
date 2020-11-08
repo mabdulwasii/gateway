@@ -1,6 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
-import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient2;
 import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
@@ -13,6 +13,7 @@ import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.service.dto.BankAccountDTO;
 import ng.com.systemspecs.apigateway.service.dto.BankDTO;
+import ng.com.systemspecs.apigateway.service.dto.BvnDTO;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
@@ -32,16 +33,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
- 
+
 import ng.com.systemspecs.apigateway.web.rest.errors.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -51,11 +54,11 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import java.util.Optional;
- 
+
 import  ng.com.systemspecs.remitarits.util.*;
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.accountenquiry.*;
-import  ng.com.systemspecs.remitarits.bankenquiry.*; 
+import  ng.com.systemspecs.remitarits.bankenquiry.*;
 import  ng.com.systemspecs.remitarits.singlepayment.*;
 import  ng.com.systemspecs.remitarits.singlepaymentstatus.*;
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
@@ -78,22 +81,26 @@ public class WalletAccountResource {
     private final PasswordEncoder passwordEncoder;
     private static long Lower_Bond = 10000000000L;
     private static long Upper_Bond = 90000000000L;
-    
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final WalletAccountService walletAccountService;
     private final ProfileService profileService;
     private  User theUser;
-	@Autowired
-    RITSService  rITSService;
+	private final ExternalRESTClient2  externalRESTClient2;
+	private final RITSService  rITSService;
+
+
 
     public WalletAccountResource(WalletAccountService walletAccountService, ProfileService profileService,
-    		UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    		UserRepository userRepository, PasswordEncoder passwordEncoder, RITSService  rITSService, ExternalRESTClient2  externalRESTClient2) {
         this.walletAccountService = walletAccountService;
         this.userRepository = userRepository;
         this.profileService = profileService;
         this.passwordEncoder = passwordEncoder;
+		this.rITSService =  rITSService;
+		this.externalRESTClient2  = externalRESTClient2;
     }
 
     /**
@@ -190,12 +197,12 @@ public class WalletAccountResource {
         walletAccountService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
-    @PostMapping("/fund-wallet")
-    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) throws URISyntaxException {
-        PaymentResponseDTO response = walletAccountService.fund(fundDTO);
-        return response;
-    }  
-    
+    @PostMapping(path = "/fund-wallet", consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) {
+        return walletAccountService.fund(fundDTO);
+    }
+
     @PostMapping("/send-money")
     public ResponseEntity<PaymentResponseDTO> sendMoney(@RequestBody FundDTO sendMoneyDTO) throws URISyntaxException {
     	//this.pinCorrect = true;
@@ -214,22 +221,22 @@ public class WalletAccountResource {
         	response.setMessage("invalid pin");
             return  new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
         }
-       
+
         PaymentResponseDTO response = walletAccountService.sendMoney(sendMoneyDTO);
         if(response.getError()) {
             return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.BAD_REQUEST);
         }
         else return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
-    }    
+    }
 
 
-    
+
  @PostMapping({"/payment","/rits-payment"})
 	  public SinglePaymentResponse singlePayment(@RequestBody SinglePaymentRequest   singleRequest) {
     	 return rITSService.singlePayment(singleRequest);
     }
-    
-	  
+
+
     @PostMapping({"/bulk-payment","/rits-bulk-payment"})
 	  public BulkPaymentResponse postBulkPayment(@RequestBody BulkPaymentRequest request) {
     	 return rITSService.postBulkPayment(request);
@@ -240,22 +247,28 @@ public class WalletAccountResource {
 	    public PaymentStatusResponse singlePaymentStatus(@RequestBody PaymentStatusRequest request) {
 		  return rITSService.singlePaymentStatus(request);
 	  }
-	    
-	  @PostMapping({"/bulk-payment-status","/rits-bulk-payment-status"}) 
+
+	  @PostMapping({"/bulk-payment-status","/rits-bulk-payment-status"})
 	    public BulkPaymentStatusResponse bulkPaymentStatus(@RequestBody BulkPaymentStatusRequest request) {
 		  return rITSService.bulkPaymentStatus(request);
 	  }
-	    
-	   
+
+
 	  @PostMapping({"/verify-account","/rits-account-enquiry"})
 	    public AccountEnquiryResponse getAccountEnquiry(@RequestBody AccountEnqiryRequest accountEnqiryRequest) {
 		  return rITSService.getAccountEnquiry(accountEnqiryRequest);
-	  } 
-	    
-	  @GetMapping({"/banks/all","/rits-banks"})  
+	  }
+
+	  @GetMapping({"/banks/all","/rits-banks"})
 	    public GetActiveBankResponse getActiveBanks(){
 		      return rITSService.getActiveBanks();
 	    }
-	    
-	    	
+
+	   @PostMapping("/validate-bvn")
+	    public Object validateBvn( @RequestBody  BvnDTO bvnDTO) {
+		   Map<String,String> headers  =  new java.util.HashMap<>();
+		   headers.put("X-API-PUBLIC-KEY", "U09MRHwyNjk5MzI0MjIzfGRiMjZlNjY5NDVjOGQxMjVjMjBkNzIwZWQ2NTE1ZTgxNTEwNzEyMGRiZGQ3MzZlOTIyYzk1MzA1ZjM4YjM2ZTk5MDUxYTE1YmZhZTc4MDcyM2VmZWU5NGQ0MzM1YmM0NzYxMzJjNDk3M2YzMWI5NWMyOWY5OWUwNDEwMWNjOTEx");
+		  return externalRESTClient2.validateBvn(headers, bvnDTO);
+	  }
+
 }
