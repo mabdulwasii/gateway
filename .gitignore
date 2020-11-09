@@ -1,2 +1,4 @@
 /node_modules
 /target/
+/src/main/resources/config/application-dev.yml
+/pom.xml

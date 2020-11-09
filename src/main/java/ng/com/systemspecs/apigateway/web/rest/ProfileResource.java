@@ -4,16 +4,22 @@ import ng.com.systemspecs.apigateway.client.ExternalRESTClient3;
 import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.domain.Profile;
+import ng.com.systemspecs.apigateway.domain.ProfileType;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.enumeration.Gender;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.service.AddressService;
+import ng.com.systemspecs.apigateway.service.KyclevelService;
 import ng.com.systemspecs.apigateway.service.ProfileService;
+import ng.com.systemspecs.apigateway.service.ProfileTypeService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.web.rest.errors.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
+
+import ng.com.systemspecs.apigateway.service.dto.BecomeAnAgentDTO;
+
 import ng.com.systemspecs.apigateway.service.dto.FingerDTO;
 import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
 import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
@@ -24,6 +30,7 @@ import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
 import ng.com.systemspecs.apigateway.service.dto.RegisterCompleteResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.RegistrationLastPageDTO;
 import ng.com.systemspecs.apigateway.service.dto.RespondDTO;
+import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 import ng.com.systemspecs.apigateway.service.validation.LastPageValidation;
 import io.github.jhipster.web.util.HeaderUtil;
@@ -83,17 +90,29 @@ public class ProfileResource {
     private final WalletAccountService walleAccountService;
     private final AddressService addressService;
     private final UserRepository userRepository;
+
+    private final KyclevelService kyclevelService;
+    private final ProfileTypeService profileTypeService;
     private final PasswordEncoder passwordEncoder;
 	private final ExternalRESTClient3  externalRESTClient3;
 	 
 	 
+
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
-    		UserRepository userRepository, PasswordEncoder passwordEncoder,
-    		AddressService addressService, ExternalRESTClient3  externalRESTClient3) {
+
+    		UserRepository userRepository,
+    		AddressService addressService,KyclevelService kyclevelService,
+    		ProfileTypeService profileTypeService,PasswordEncoder passwordEncoder,
+    		ExternalRESTClient3  externalRESTClient3) {
+
+
 		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
+
+        this.kyclevelService=kyclevelService;
+        this.profileTypeService=profileTypeService;
         this.passwordEncoder = passwordEncoder;
 		this.externalRESTClient3 = externalRESTClient3;
     }
@@ -217,10 +236,13 @@ public class ProfileResource {
     	addressDTO.setAddressOwner(profile);
     	addressService.save(addressDTO);
     	profile.setDateOfBirth(lastPageDTO.getDateOfBirth());
-    	profile.setKyc(null);
+    	Kyclevel kyclevel = kyclevelService.findByKycLevel(1);
+    	ProfileType profileType = profileTypeService.findByProfiletype("Customer");
+    	profile.setProfileType(profileType);
     	profile.setProfileID("3");
+    	profile.setKyc(kyclevel);
     	profile.setGender(Gender.valueOf(lastPageDTO.getGender()));
-            	
+        profile = profileService.save(profile);
     	WalletAccountDTO walletAccountDTO = new WalletAccountDTO();
     	walletAccountDTO.setAccountNumber(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond));
     	walletAccountDTO.setAccountOwnerPhoneNumber(profile.getPhoneNumber());
@@ -263,7 +285,7 @@ public class ProfileResource {
     		postResponseDataDTO.setDescription("section authentication failed");
         	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
 			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
-    	}
+    	} 
     	if(Strings.isEmpty(pinDTO.getPin())) {
     		postResponseDTO.setMessage("unable to validate user");
     		postResponseDataDTO.setCode("10");
@@ -320,7 +342,35 @@ public class ProfileResource {
     	String phoneNumber = (String) session.getAttribute("phoneNumber");
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
     	return profile.getProfileID();
-    } 
+
+    }    
+    
+    @PostMapping("/become_an_agent")
+    public ResponseEntity<ResponseDTO>  becomeAnAgent(@Valid @RequestBody BecomeAnAgentDTO becomeAnAgentDTO,HttpSession session) {
+    	ResponseDTO responseDTO = new ResponseDTO();
+    	if(Strings.isEmpty(becomeAnAgentDTO.getBvn())) {
+    		return new ResponseEntity<ResponseDTO>(responseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
+    	}
+    	String phoneNumber = (String) session.getAttribute("phoneNumber");
+    	Profile profile = profileService.findByPhoneNumber(phoneNumber);
+    	ProfileType profileType = profileTypeService.findByProfiletype("Agent");
+    	profile.setProfileType(profileType);
+    	profile.setProfileID("4");
+        profile = profileService.save(profile);
+    	WalletAccountDTO walletAccountDTO = new WalletAccountDTO();
+    	walletAccountDTO.setAccountNumber(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond));
+    	walletAccountDTO.setAccountOwnerPhoneNumber(profile.getPhoneNumber());
+    	walletAccountDTO.setAccountOwnerId(profile.getId());
+    	walletAccountDTO.setAccountName(profile.getUser().getFirstName());
+    	walletAccountDTO.setDateOpened(LocalDate.now());
+    	walletAccountDTO.setCurrentBalance(0.0);
+    	walletAccountDTO.setSchemeId(1L);
+    	walletAccountDTO.setWalletAccountTypeId(2L);
+    	WalletAccountDTO wallet = walleAccountService.save(walletAccountDTO);
+    	responseDTO.setMessage("Migration to Agent successfull");
+    	responseDTO.setTrasactionReference(wallet.getAccountOwnerPhoneNumber());
+		return new ResponseEntity<ResponseDTO>(responseDTO, new HttpHeaders(), HttpStatus.OK);
+    }   
 
 
 	
@@ -341,7 +391,5 @@ public class ProfileResource {
       
  }
     
- 
-
  
 }

@@ -230,8 +230,14 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 		return responseDTO;
 	}
 
-    public WalletAccount findOneByAccountNumber(Long accountNumber){
-        WalletAccountDTO walletAccountDTO = new WalletAccountDTO();
-        return walletAccountRepository.findOneByAccountNumber(accountNumber);
-    }
+	@Override
+	public WalletAccount findOneByAccountNumber(Long accountNumber) {
+		return walletAccountRepository.findOneByAccountNumber(accountNumber);
+	}
+
+	@Override
+	public WalletAccount save(WalletAccount walletAccount) {
+		return walletAccountRepository.save(walletAccount);
+	}
+
 }

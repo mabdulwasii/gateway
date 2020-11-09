@@ -21,6 +21,7 @@ public interface WalletAccountService {
      * @return the persisted entity.
      */
     WalletAccountDTO save(WalletAccountDTO walletAccountDTO);
+    WalletAccount save(WalletAccount walletAccount);
 
     /**
      * Get all the walletAccounts.

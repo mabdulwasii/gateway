@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ProfileTypeRepository extends JpaRepository<ProfileType, Long> {
+	ProfileType findByProfiletype(String profiletype);
 }

@@ -1,0 +1,48 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.9.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <changeSet author="USER (generated)" id="1604467903292-7">
+        <createTable tableName="jounal">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jounalPK"/>
+            </column>
+            <column name="memo" type="VARCHAR(255)"/>
+            <column name="reference" type="VARCHAR(255)"/>
+            <column name="trans_date" type="date"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-8">
+        <createTable tableName="jounal_line">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jounal_linePK"/>
+            </column>
+            <column name="credit" type="FLOAT8"/>
+            <column name="debit" type="FLOAT8"/>
+            <column name="jounal_id" type="BIGINT"/>
+            <column name="wallet_account_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-9">
+        <addForeignKeyConstraint baseColumnNames="wallet_account_id" baseTableName="jounal_line" constraintName="FK5xoglbb34pk9yi4m6ldwcnf33" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="wallet_account" validate="true"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-10">
+        <addForeignKeyConstraint baseColumnNames="jounal_id" baseTableName="jounal_line" constraintName="FKq1qkwi3bp726yehudbih8xe5b" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jounal" validate="true"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-1">
+        <alterSequence sequenceName="sequence_generator"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-2">
+        <setTableRemarks tableName="address"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-3">
+        <setTableRemarks tableName="biller"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-4">
+        <setTableRemarks tableName="kyclevel"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-5">
+        <setTableRemarks tableName="profile"/>
+    </changeSet>
+    <changeSet author="USER (generated)" id="1604467903292-6">
+        <setTableRemarks tableName="profile_type"/>
+    </changeSet>
+</databaseChangeLog>

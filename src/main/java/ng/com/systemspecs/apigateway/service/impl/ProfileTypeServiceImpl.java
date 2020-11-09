@@ -65,4 +65,10 @@ public class ProfileTypeServiceImpl implements ProfileTypeService {
         log.debug("Request to delete ProfileType : {}", id);
         profileTypeRepository.deleteById(id);
     }
+
+	@Override
+	public ProfileType findByProfiletype(String profiletype) {
+		// TODO Auto-generated method stub
+		return profileTypeRepository.findByProfiletype(profiletype);
+	}
 }

@@ -41,8 +41,8 @@ public class PushNotificationService {
     private Map<String, String> getSamplePayloadData() {
         Map<String, String> pushData = new HashMap<>();
         pushData.put("messageId", "msgid");
-        pushData.put("text", "txt");
-        pushData.put("user", "pankaj singh");
+        pushData.put("name", "kazeem");
+        pushData.put("user", "akinrinde kazeem");
         return pushData;
     }    
 }
