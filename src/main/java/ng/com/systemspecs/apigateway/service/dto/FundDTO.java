@@ -3,6 +3,14 @@ package ng.com.systemspecs.apigateway.service.dto;
 import java.io.Serializable;
 
 public class FundDTO implements Serializable {
+	private Long accountNumber;
+	private Double amount;
+	private String channel;
+	private String sourceBankCode;
+	private String sourceAccountNumber;
+	private String destBankCode;
+	private String pin;
+	private String transRef;
 
 	public Double getAmount() {
 		return amount;
@@ -40,10 +48,19 @@ public class FundDTO implements Serializable {
 	public void setDestBankCode(String destBankCode) {
 		this.destBankCode = destBankCode;
 	}
-	private Long accountNumber;
-	private Double amount;
-	private String channel;
-	private String sourceBankCode;
-	private String sourceAccountNumber;
-	private String destBankCode;
+
+	public String getPin() {
+		return pin;
+	}
+	public void setPin(String pin) {
+		this.pin = pin;
+	}
+
+    public String getTransRef() {
+        return transRef;
+    }
+
+    public void setTransRef(String transRef) {
+        this.transRef = transRef;
+    }
 }

@@ -1,7 +1,7 @@
 package ng.com.systemspecs.apigateway.service;
 
 import ng.com.systemspecs.apigateway.domain.Profile;
-import ng.com.systemspecs.apigateway.domain.Profile_;
+import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
 

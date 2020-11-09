@@ -33,15 +33,10 @@ public class Profile implements Serializable {
     private String profileID;
     
     @Column(name = "xxxx")
-    private Integer pin;
-
-    public Integer getPin() {
-		return pin;
-	}
-
-	public void setPin(Integer pin) {
-		this.pin = pin;
-	}
+    private String pin;
+    
+    @Column(name = "device_notification_token")
+	private String deviceNotificationToken;
 
 	@Column(name = "phone_number")
     private String phoneNumber;
@@ -105,7 +100,23 @@ public class Profile implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+    
+    public String getDeviceNotificationToken() {
+		return deviceNotificationToken;
+	}
 
+	public void setDeviceNotificationToken(String deviceNotificationToken) {
+		this.deviceNotificationToken = deviceNotificationToken;
+	}
+
+	public String getPin() {
+		return pin;
+	}
+
+	public void setPin(String pin) {
+		this.pin = pin;
+	}
+	
     public String getProfileID() {
         return profileID;
     }
@@ -393,6 +404,7 @@ public class Profile implements Serializable {
             ", photoContentType='" + getPhotoContentType() + "'" +
             ", bvn='" + getBvn() + "'" +
             ", validID='" + getValidID() + "'" +
+            ", deviceNotificationToken='" + getDeviceNotificationToken() + "'" +
             "}";
     }
 }

@@ -1,4 +1,4 @@
-package ng.com.systemspecs.apigateway.web.rest;
+package ng.com.systemspecs.apigateway.web.rest; 
 
 import ng.com.systemspecs.apigateway.service.BillerTransactionService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
@@ -12,9 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import feign.Headers;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient;
 
 import ng.com.systemspecs.remitabillinggateway.service.*;
 import ng.com.systemspecs.remitabillinggateway.servicetypes.GetServiceResponse;
@@ -59,9 +64,12 @@ public class BillerTransactionResource {
     private String applicationName;
 
     private final BillerTransactionService billerTransactionService;
+	
+	private final ExternalRESTClient  externalRESTClient;
 
-    public BillerTransactionResource(BillerTransactionService billerTransactionService) {
+     public BillerTransactionResource(BillerTransactionService billerTransactionService, ExternalRESTClient  externalRESTClient) {
         this.billerTransactionService = billerTransactionService;
+        this.externalRESTClient =  externalRESTClient;
     }
 
     /**
@@ -191,6 +199,22 @@ public class BillerTransactionResource {
     	return billerTransactionService.billNotificationTest();
     }
     
+
+	    @GetMapping("/billing/receipt/{rrr}/{requestId}/rest.reg")
+    @ResponseStatus(HttpStatus.ACCEPTED) 
+    public  ResponseEntity<byte[]> getRRRReceipt(@PathVariable("rrr") String rrr, @PathVariable("requestId") String requestId) {
+    	String  fileName  = "biller_payment_reciept_"+System.currentTimeMillis()+".pdf";
+    	String  publicKey  = "dC5vbW9udWJpQGdtYWlsLmNvbXxiM2RjMDhjZDRlZTc5ZDIxZDQwMjdjOWM3MmI5ZWY0ZDA3MTk2YTRkNGRkMjY3NjNkMGZkYzA4MjM1MzI4OWFhODE5OGM4MjM0NTI2YWI2ZjZkYzNhZmQzNDNkZmIzYmUwNTkxODlmMmNkOTkxNmM5MjVhNjYwZjk0ZTk1OTkwNw==";
+    	HttpHeaders responseHeaders = new HttpHeaders(); 
+    	 responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    	ContentDisposition contentDisposition = ContentDisposition.builder("inline")
+    	          .filename(fileName)
+    	          .build(); 
+    	responseHeaders.setContentDisposition(contentDisposition);
+    	log.info(String.valueOf(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId)));
+    	return new ResponseEntity<byte[]>(externalRESTClient.getRRRReceipt(publicKey,rrr,requestId), responseHeaders, HttpStatus.OK);
+    
+    }
 	
 	
 }

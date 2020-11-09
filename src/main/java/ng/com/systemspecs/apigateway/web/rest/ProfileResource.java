@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient3;
 import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.domain.Profile;
@@ -16,7 +17,11 @@ import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.web.rest.errors.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
+
 import ng.com.systemspecs.apigateway.service.dto.BecomeAnAgentDTO;
+
+import ng.com.systemspecs.apigateway.service.dto.FingerDTO;
+import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
 import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
 import ng.com.systemspecs.apigateway.service.dto.PinDTO;
 import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
@@ -36,24 +41,33 @@ import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import feign.Headers;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+
 
 /**
  * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.Profile}.
@@ -69,25 +83,38 @@ public class ProfileResource {
     private static long Upper_Bond = 90000000000L;
 
     private static final String ENTITY_NAME = "profile";
-
+	 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
     private final ProfileService profileService;
     private final WalletAccountService walleAccountService;
     private final AddressService addressService;
     private final UserRepository userRepository;
+
     private final KyclevelService kyclevelService;
     private final ProfileTypeService profileTypeService;
-    
+    private final PasswordEncoder passwordEncoder;
+	private final ExternalRESTClient3  externalRESTClient3;
+	 
+	 
+
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
+
     		UserRepository userRepository,
-    		AddressService addressService,KyclevelService kyclevelService,ProfileTypeService profileTypeService) {
+    		AddressService addressService,KyclevelService kyclevelService,
+    		ProfileTypeService profileTypeService,PasswordEncoder passwordEncoder,
+    		ExternalRESTClient3  externalRESTClient3) {
+
+
 		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
+
         this.kyclevelService=kyclevelService;
         this.profileTypeService=profileTypeService;
+        this.passwordEncoder = passwordEncoder;
+		this.externalRESTClient3 = externalRESTClient3;
     }
 
     /**
@@ -258,7 +285,7 @@ public class ProfileResource {
     		postResponseDataDTO.setDescription("section authentication failed");
         	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
 			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
-    	}
+    	} 
     	if(Strings.isEmpty(pinDTO.getPin())) {
     		postResponseDTO.setMessage("unable to validate user");
     		postResponseDataDTO.setCode("10");
@@ -267,7 +294,8 @@ public class ProfileResource {
 			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
     	}
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
-    	profile.setPin(Integer.valueOf(pinDTO.getPin().hashCode()));
+        String encryptedPassword = passwordEncoder.encode(pinDTO.getPin());
+    	profile.setPin(encryptedPassword);
     	profile.setProfileID("2");
     	profile=profileService.save(profile);
 
@@ -314,6 +342,7 @@ public class ProfileResource {
     	String phoneNumber = (String) session.getAttribute("phoneNumber");
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
     	return profile.getProfileID();
+
     }    
     
     @PostMapping("/become_an_agent")
@@ -342,5 +371,25 @@ public class ProfileResource {
     	responseDTO.setTrasactionReference(wallet.getAccountOwnerPhoneNumber());
 		return new ResponseEntity<ResponseDTO>(responseDTO, new HttpHeaders(), HttpStatus.OK);
     }   
+
+
+	
+	
+  
+    @PostMapping(value = "/referencedataninandfingerprint")
+    public  Object  getFingerPrintData(@RequestBody  NinFingerPrintDTO  ninFingerPrintDTO) {
+    	String base64StringData = "";
+       String refId = "nimcDetailsByNin";
+ 	   String  authCode = "67777777";
+ 	   String secretKey = "610a64055d214207ee638c1dd7c610b1751dcc0510563fdc52c0a4f9f8e36e275c686c6cbae1ea4e636131a265f20f07e8d610a4733f4df974c0f915465048a1"; 	  
+ 	  String signature = "cac9b29a138c039b8e761293c258a999740bc144638b8582c3c4d9cf11ec96792075097eaa44c7f435b9eae831a6d5175f47ecea27fa5fcaed591d12d44410b8";
+    	Map<String,String> headers  =  new java.util.HashMap<>();
+	   headers.put("X-API-PUBLIC-KEY", "QzAwMDAxMTU0MDF8MTUwOTM3NzUwMjMzNXw2MGFmMDZjYTk4ZWYwNzgyMjIzMDQ5MTY4MmZhMWYwODFlMTAwODg3NDczMzRkYjFjNWQ5MGMzZmM5ZDQwNDEyMmQ1ZThhZjAwM2YyMmU5ZDA1ZjZkM2QyNTg3OWYyZDFhMDRlYjE4NDM3MjVhODYwOGYxMjdhYmJmNzRkYmQwMA");
+	  
+	   headers.put("X-API-SIGNATURE",signature); 
+   	   	return  externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO);
+      
+ }
     
+ 
 }

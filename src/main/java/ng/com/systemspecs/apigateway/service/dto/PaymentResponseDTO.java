@@ -3,6 +3,16 @@ package ng.com.systemspecs.apigateway.service.dto;
 public class PaymentResponseDTO {
 	private String message;
 	private String code;
+	private Boolean error;
+	public Boolean getError() {
+		return error;
+	}
+	public void setError(Boolean error) {
+		this.error = error;
+	}
+	public PaymentResponseDTO() {
+		this.error = false;
+	}
 	private PaymentTransactionDTO paymentTransactionDTO;
 	public String getMessage() {
 		return message;

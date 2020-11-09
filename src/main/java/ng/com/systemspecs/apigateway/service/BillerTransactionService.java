@@ -60,6 +60,8 @@ public interface BillerTransactionService {
 	
 	
 	 public   RemitaBillingGatewayService  getRemitaBillingGatewayService();
+	 
+	 public   RemitaBillingGatewayService  notifyBillingGatewayService();
     
     public GetRRRDetailsResponse getRRR(String rrr) ;   
     
