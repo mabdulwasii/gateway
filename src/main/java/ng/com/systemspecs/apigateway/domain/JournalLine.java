@@ -1,5 +1,7 @@
 package ng.com.systemspecs.apigateway.domain;
 
+import java.time.LocalDate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,10 +14,12 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "jounal_line")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@JsonIgnoreProperties(value = { "walletAccount","jounal"})
 public class JournalLine {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -23,7 +27,7 @@ public class JournalLine {
     private Long id;
     
     @ManyToOne
-   // @JsonIgnoreProperties(value = "jounalLines", allowSetters = true)
+
     private WalletAccount walletAccount;
     @Column(columnDefinition = "double default 0.00")
     private Double debit;
@@ -65,4 +69,19 @@ public class JournalLine {
 	public void setWalletAccount(WalletAccount walletAccount) {
 		this.walletAccount = walletAccount;
 	}
+	public String getCreditDebit() {
+		return (debit==0&&credit>0.00)?"credit":"debit";
+	}
+	public Double getAmount() {
+		return (debit==0&&credit>0.00)?credit:debit;
+	}
+	public String getTransactionRef() {
+		return jounal.getReference();
+	}
+	public LocalDate getTransactionDate() {
+		return jounal.getTransDate();
+	}	
+	public String getMemo() {
+		return jounal.getMemo();
+	}		
 }
