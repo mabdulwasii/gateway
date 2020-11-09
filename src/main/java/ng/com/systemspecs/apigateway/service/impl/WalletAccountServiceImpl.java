@@ -1,7 +1,6 @@
 package ng.com.systemspecs.apigateway.service.impl;
 
 import ng.com.systemspecs.apigateway.client.InlineStatusResponse;
-import ng.com.systemspecs.apigateway.domain.PaymentTransaction;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.repository.WalletAccountRepository;
@@ -47,6 +46,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	private final WalletAccountMapper walletAccountMapper;
 	private final TransProducer producer;
     private PaymentResponseDTO responseDTO;
+    private boolean status = false;
 
     public WalletAccountServiceImpl(WalletAccountRepository walletAccountRepository,
 			WalletAccountMapper walletAccountMapper,TransProducer producer) {
@@ -93,7 +93,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 	}
 
 	@Override
-	public PaymentResponseDTO fund(FundDTO fundDTO) {
+	public ResponseEntity<PaymentResponseDTO> fund(FundDTO fundDTO) {
 	    responseDTO = new PaymentResponseDTO();
 
         //if channel is #wallet to wallet
@@ -126,12 +126,16 @@ public class WalletAccountServiceImpl implements WalletAccountService {
             }
 
         }
+        if (status) {
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }
 
-		return responseDTO;
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK );
 	}
 
     private void buildPaymentResponseDTO(boolean hasError, String message)  {
         responseDTO.setError(hasError);
+        status = hasError;
         if (hasError){
             responseDTO.setMessage(message);
             responseDTO.setCode("Failed");
