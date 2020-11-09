@@ -127,7 +127,6 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
         }
 
-
 		return responseDTO;
 	}
 
@@ -164,11 +163,12 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
             log.debug(response.getHeaders().toString());
             log.debug(response.toString());
+            log.debug(params.get("transId"));
+
             InlineStatusResponse body = response.getBody();
-            if (response.getStatusCode().equals(HttpStatus.OK) && body.getResponseData().get(0).getMessage().equalsIgnoreCase("Approved")){
-                return true;
-            } else {
-                return false;
+
+            if (body != null) {
+                return body.getResponseCode().equalsIgnoreCase("00");
             }
 
         }catch(Exception ex) {
@@ -195,7 +195,6 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
 		String generatedString = random.ints(97, 122 + 1).limit(15)
 				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
-
 
 		account.setCurrentBalance(account.getCurrentBalance() - sendMoneyDTO.getAmount());
 		account = walletAccountRepository.save(account);
