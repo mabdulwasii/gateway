@@ -5,31 +5,20 @@ import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.security.SecurityUtils;
-import ng.com.systemspecs.apigateway.service.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.RITSService;
-import ng.com.systemspecs.apigateway.service.UserService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
-import ng.com.systemspecs.apigateway.service.dto.BankAccountDTO;
-import ng.com.systemspecs.apigateway.service.dto.BankDTO;
 import ng.com.systemspecs.apigateway.service.dto.BvnDTO;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
-import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.SendMoneyDTO;
-import ng.com.systemspecs.apigateway.service.dto.VerifyBankAccountDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
-import io.jsonwebtoken.lang.Strings;
-import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,35 +27,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import ng.com.systemspecs.apigateway.web.rest.errors.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-
-import java.util.Optional;
-
-import  ng.com.systemspecs.remitarits.util.*;
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.accountenquiry.*;
 import  ng.com.systemspecs.remitarits.bankenquiry.*;
 import  ng.com.systemspecs.remitarits.singlepayment.*;
 import  ng.com.systemspecs.remitarits.singlepaymentstatus.*;
-import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.bulkpaymentstatus.*;
-import  ng.com.systemspecs.remitarits.bankenquiry.*;
-import  ng.com.systemspecs.remitarits.configuration.*;
-import  ng.com.systemspecs.remitarits.service.*;
-import  ng.com.systemspecs.remitarits.service.impl.*;
 
 /**
  * REST controller for managing {@link ng.com.systemspecs.apigateway.domain.WalletAccount}.
@@ -199,7 +173,7 @@ public class WalletAccountResource {
     }
     @PostMapping(path = "/fund-wallet", consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public PaymentResponseDTO fundWalletAccount(@RequestBody FundDTO fundDTO) {
+    public ResponseEntity<PaymentResponseDTO> fundWalletAccount(@RequestBody FundDTO fundDTO) {
         return walletAccountService.fund(fundDTO);
     }
 

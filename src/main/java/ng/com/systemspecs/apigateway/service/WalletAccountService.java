@@ -4,6 +4,7 @@ import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.service.dto.FundDTO;
 import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public interface WalletAccountService {
      */
     void delete(Long id);
 
-    PaymentResponseDTO fund(FundDTO fundDTO);
+    ResponseEntity<PaymentResponseDTO> fund(FundDTO fundDTO);
     PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO);
 
     WalletAccount findOneByAccountNumber(Long accountNumber);
