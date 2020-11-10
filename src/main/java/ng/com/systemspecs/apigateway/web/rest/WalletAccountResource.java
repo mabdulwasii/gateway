@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-<<<<<<< HEAD
 
 import  ng.com.systemspecs.remitarits.bulkpayment.*;
 import  ng.com.systemspecs.remitarits.accountenquiry.*;
@@ -42,20 +41,6 @@ import  ng.com.systemspecs.remitarits.bankenquiry.*;
 import  ng.com.systemspecs.remitarits.singlepayment.*;
 import  ng.com.systemspecs.remitarits.singlepaymentstatus.*;
 import  ng.com.systemspecs.remitarits.bulkpaymentstatus.*;
-=======
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-
-import java.util.Optional;
-
-import ng.com.systemspecs.remitarits.util.*;
-import ng.com.systemspecs.remitarits.bulkpayment.*;
-import ng.com.systemspecs.remitarits.accountenquiry.*;
-import ng.com.systemspecs.remitarits.bankenquiry.*;
-import ng.com.systemspecs.remitarits.singlepayment.*;
-import ng.com.systemspecs.remitarits.singlepaymentstatus.*;
-import ng.com.systemspecs.remitarits.bulkpaymentstatus.*;
->>>>>>> 839922d32c256addde03bcf6a2761ee4768e6ba8
 
 /**
  * REST controller for managing

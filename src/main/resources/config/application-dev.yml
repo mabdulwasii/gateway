@@ -46,7 +46,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/dfscore_dev_2
     username: postgres
-    password: 020775Rashy!
+    password: ifeanyi
     hikari:
       poolName: Hikari
       auto-commit: false

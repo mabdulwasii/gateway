@@ -46,7 +46,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/dfscore_dev_2
     username: postgres
-    password: 020775Rashy!
+    password: ifeanyi
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -76,12 +76,12 @@ spring:
         enabled: true
 
 server:
-    port: 8084
+  port: 8084
 ssl:
-    key-store: mylocal.p12
-    key-store-password: dfspassword
-    keyStoreType: PKCS12
-    keyAlias: dfsalias
+  key-store: mylocal.p12
+  key-store-password: dfspassword
+  keyStoreType: PKCS12
+  keyAlias: dfsalias
 
 # ===================================================================
 # JHipster specific properties
