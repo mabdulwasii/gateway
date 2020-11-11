@@ -17,6 +17,6 @@ import java.util.Optional;
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     @Query("select profile from Profile profile where profile.user.login = ?#{principal.username}")
-    List<Profile> findByUserIsCurrentUser();
+    Profile findByUserIsCurrentUser();
     Profile findOneByPhoneNumber(String phoneNumber);
 }

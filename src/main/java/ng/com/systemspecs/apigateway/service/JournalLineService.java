@@ -6,10 +6,11 @@ import java.util.Optional;
 import ng.com.systemspecs.apigateway.domain.Journal;
 import ng.com.systemspecs.apigateway.domain.JournalLine;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
+import ng.com.systemspecs.apigateway.domain.enumeration.PaymentType;
 
 public interface JournalLineService {
     JournalLine save(JournalLine journalLine, Journal journal,WalletAccount walletAccount);
-    
+
 
     /**
      * Get all the addresses.
@@ -27,6 +28,10 @@ public interface JournalLineService {
      */
     Optional<JournalLine> findOne(Long id);
     List<JournalLine> findByWalletAccount_AccountNumber(Long accountNumber);
-
+    List<JournalLine> findByWalletAccountAccountNumberAndDebitGreaterThan(Long accountNumber,Double debit);
+    List<JournalLine> findByWalletAccountAccountNumberAndCreditGreaterThan(Long accountNumber,Double debit);
+    List<JournalLine> findAccountDailyTransaction(Long accountNumber);
+    List<JournalLine> findCustomerInvoice(PaymentType paymentType);
+    Double getAccountDailyTransactionAmount(Long accountNumber);
     void delete(Long id);
 }

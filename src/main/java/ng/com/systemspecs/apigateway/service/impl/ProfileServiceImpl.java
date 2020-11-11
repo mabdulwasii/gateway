@@ -1,8 +1,10 @@
 package ng.com.systemspecs.apigateway.service.impl;
 
+import ng.com.systemspecs.apigateway.service.JournalLineService;
 import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
+import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.repository.ProfileRepository;
 import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
 import ng.com.systemspecs.apigateway.service.mapper.ProfileMapper;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service Implementation for managing {@link Profile}.
@@ -29,9 +32,13 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileMapper profileMapper;
 
-    public ProfileServiceImpl(ProfileRepository profileRepository, ProfileMapper profileMapper) {
+    private final JournalLineService journalLineService;
+
+    public ProfileServiceImpl(ProfileRepository profileRepository, ProfileMapper profileMapper,
+                              JournalLineService journalLineService) {
         this.profileRepository = profileRepository;
         this.profileMapper = profileMapper;
+        this.journalLineService = journalLineService;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class ProfileServiceImpl implements ProfileService {
         log.debug("Request to save Profile : {}", profile);
         profile = profileRepository.save(profile);
         return profile;
-    }    
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -71,15 +78,44 @@ public class ProfileServiceImpl implements ProfileService {
         profileRepository.deleteById(id);
     }
 
-	@Override
-	public Optional<ProfileDTO> findOneByPhoneNumber(String phoneNumber) {
-		Profile profile = profileRepository.findOneByPhoneNumber(phoneNumber);
-		return Optional.of(profileMapper.toDto(profile));
-	}
+    @Override
+    public Optional<ProfileDTO> findOneByPhoneNumber(String phoneNumber) {
+        Profile profile = profileRepository.findOneByPhoneNumber(phoneNumber);
+        return Optional.of(profileMapper.toDto(profile));
+    }
 
-	@Override
-	public Profile findByPhoneNumber(String phoneNumber) {
-		// TODO Auto-generated method stub
-		return profileRepository.findOneByPhoneNumber(phoneNumber);
-	}
+    @Override
+    public Optional<ProfileDTO> findByUserIsCurrentUser() {
+        Profile profile = profileRepository.findByUserIsCurrentUser();
+        return Optional.of(profileMapper.toDto(profile));
+    }
+
+    @Override
+    public Profile findByPhoneNumber(String phoneNumber) {
+        // TODO Auto-generated method stub
+        return profileRepository.findOneByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public Boolean canSpendOnAccount(String phoneNumber, Long accountNumber, Double amount) {
+        Profile profile = profileRepository.findOneByPhoneNumber(phoneNumber);
+        Double todaySpending = journalLineService.getAccountDailyTransactionAmount(accountNumber);
+        return ((todaySpending+amount)<=profile.getKyc().getDailyTransactionLimit());
+    }
+
+    @Override
+    public Boolean canAccummulateOnAccount(String phoneNumber, Long accountNumber, Double amount) {
+        Profile profile = profileRepository.findOneByPhoneNumber(phoneNumber);
+        Set<WalletAccount> accounts = profile.getWalletAccounts();
+        Boolean response = false;
+        for (WalletAccount walletAccount : accounts) {
+            if(walletAccount.getAccountNumber() == accountNumber) {
+                response = walletAccount.getCurrentBalance()+amount<=profile.getKyc().getCumulativeBalanceLimit();
+            }
+        }
+        return response;
+    }
+
+
+
 }
