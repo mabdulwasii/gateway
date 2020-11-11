@@ -5,8 +5,9 @@ public class RegisteredUserDTO {
 	private String lastName;
 	private String phoneNumber;
 	private String password;
+    private String email;
 	private String deviceNotificationToken;
-	
+
 	public String getDeviceNotificationToken() {
 		return deviceNotificationToken;
 	}
@@ -37,4 +38,12 @@ public class RegisteredUserDTO {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

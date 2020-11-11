@@ -47,12 +47,15 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
-    public UserService(UserRepository userRepository,ProfileRepository profileRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+    private final MailService mailService;
+
+    public UserService(UserRepository userRepository,ProfileRepository profileRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager, MailService mailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
         this.profileRepository = profileRepository;
+        this.mailService = mailService;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -107,10 +110,8 @@ public class UserService {
         newUser.setPassword(encryptedPassword);
         newUser.setFirstName(registeredUserDTO.getFirstName());
         newUser.setLastName(registeredUserDTO.getLastName());
-		/*
-		 * if (registeredUserDTO.getEmail() != null) {
-		 * newUser.setEmail(userDTO.getEmail().toLowerCase()); }
-		 */
+        if (registeredUserDTO.getEmail() != null) {
+            newUser.setEmail(registeredUserDTO.getEmail().toLowerCase()); }
         //newUser.setImageUrl(userDTO.getImageUrl());
         //newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
@@ -127,6 +128,7 @@ public class UserService {
         profile.setProfileID("1");
         profile.setDeviceNotificationToken(registeredUserDTO.getDeviceNotificationToken());
         profileRepository.save(profile);
+        mailService.sendActivationEmail(user); //Send activation email to user
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
