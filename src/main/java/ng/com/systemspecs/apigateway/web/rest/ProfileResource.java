@@ -1,5 +1,6 @@
 package ng.com.systemspecs.apigateway.web.rest;
 
+import ng.com.systemspecs.apigateway.client.ExternalRESTClient2;
 import ng.com.systemspecs.apigateway.client.ExternalRESTClient3;
 import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
@@ -7,24 +8,11 @@ import ng.com.systemspecs.apigateway.domain.Profile;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.enumeration.Gender;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
-import ng.com.systemspecs.apigateway.service.AddressService;
-import ng.com.systemspecs.apigateway.service.ProfileService;
-import ng.com.systemspecs.apigateway.service.WalletAccountService;
+import ng.com.systemspecs.apigateway.service.*;
+import ng.com.systemspecs.apigateway.service.dto.*;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.web.rest.errors.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
-import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
-import ng.com.systemspecs.apigateway.service.dto.FingerDTO;
-import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
-import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
-import ng.com.systemspecs.apigateway.service.dto.PinDTO;
-import ng.com.systemspecs.apigateway.service.dto.PostResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.PostResponseDataDTO;
-import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
-import ng.com.systemspecs.apigateway.service.dto.RegisterCompleteResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.RegistrationLastPageDTO;
-import ng.com.systemspecs.apigateway.service.dto.RespondDTO;
-import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 import ng.com.systemspecs.apigateway.service.validation.LastPageValidation;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -83,20 +71,36 @@ public class ProfileResource {
     private final WalletAccountService walleAccountService;
     private final AddressService addressService;
     private final UserRepository userRepository;
+
+    private final KyclevelService kyclevelService;
+    private final ProfileTypeService profileTypeService;
     private final PasswordEncoder passwordEncoder;
-	private final ExternalRESTClient3  externalRESTClient3;
+    private final ExternalRESTClient3  externalRESTClient3;
+    private final ExternalRESTClient2 externalRESTClient2;
+
+
 
 
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
-    		UserRepository userRepository, PasswordEncoder passwordEncoder,
-    		AddressService addressService, ExternalRESTClient3  externalRESTClient3) {
-		this.profileService = profileService;
+
+                           UserRepository userRepository,
+                           AddressService addressService,KyclevelService kyclevelService,
+                           ProfileTypeService profileTypeService,PasswordEncoder passwordEncoder,
+                           ExternalRESTClient3  externalRESTClient3, ExternalRESTClient2 externalRESTClient2) {
+
+
+        this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
+
+        this.kyclevelService=kyclevelService;
+        this.profileTypeService=profileTypeService;
         this.passwordEncoder = passwordEncoder;
-		this.externalRESTClient3 = externalRESTClient3;
+        this.externalRESTClient3 = externalRESTClient3;
+        this.externalRESTClient2 = externalRESTClient2;
     }
+
 
     /**
      * {@code POST  /profiles} : Create a new profile.
@@ -168,7 +172,6 @@ public class ProfileResource {
     /**
      * {@code GET  /profiles/:id} : get the "id" profile.
      *
-     * @param id the id of the profileDTO to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the profileDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/profiles/{phoneNumber}")
@@ -341,6 +344,56 @@ public class ProfileResource {
 
  }
 
+    //TODO upgrade KYC upgrade-kyc4
+
+    @PostMapping(path = "/upgrade-kyc")
+    public ResponseEntity<GenericResponseDTO> upgradeKYCLevel(UpgradeKYCLevelDTO upgradeKYCLevelDTO) {
+        GenericResponseDTO genericResponseDTO = new GenericResponseDTO();
+        BvnDTO bvnDTO = upgradeKYCLevelDTO.getBvn();
+        Map<String,String> headers  =  new java.util.HashMap<>();
+        //TODO put in application.properties file
+        headers.put("X-API-PUBLIC-KEY", "U09MRHwyNjk5MzI0MjIzfGRiMjZlNjY5NDVjOGQxMjVjMjBkNzIwZWQ2NTE1ZTgxNTEwNzEyMGRiZGQ3MzZlOTIyYzk1MzA1ZjM4YjM2ZTk5MDUxYTE1YmZhZTc4MDcyM2VmZWU5NGQ0MzM1YmM0NzYxMzJjNDk3M2YzMWI5NWMyOWY5OWUwNDEwMWNjOTEx");
+        String o = (String) externalRESTClient2.validateBvn(headers, bvnDTO);
+        log.debug(o);
+
+        if (o != null ){ //TODO verify BVN format
+            Optional<ProfileDTO> currentUser = profileService.findByUserIsCurrentUser();
+
+            if (currentUser.isPresent()){
+                Long kycId = currentUser.get().getKycId();
+                Optional<KyclevelDTO> kycLevelOptional = kyclevelService.findOne(kycId);
+                if (kycLevelOptional.isPresent()){
+                    Integer currentKycLevel = kycLevelOptional.get().getKycLevel();
+
+                    if (currentKycLevel == 3){
+                        genericResponseDTO.setMessage("Maximum KYC level reached!");
+                        genericResponseDTO.setCode("Failed");
+                        genericResponseDTO.setData(currentUser.get());
+                        return new ResponseEntity<>(genericResponseDTO, HttpStatus.BAD_REQUEST);
+                    }else {
+                        Kyclevel kyclevel = kyclevelService.findByKycLevel(currentKycLevel + 1);
+                        currentUser.get().setKycId(kyclevel.getId());
+
+                        genericResponseDTO.setMessage("KYC level upgraded to " + currentKycLevel + 1);
+                        genericResponseDTO.setCode("Success");
+                        genericResponseDTO.setData(currentUser.get());
+                        return new ResponseEntity<>(genericResponseDTO, HttpStatus.OK);
+                    }
+                }
+            }
+        }else {
+            genericResponseDTO.setMessage("Bvn verification failed");
+            genericResponseDTO.setCode("Failed");
+            genericResponseDTO.setData(bvnDTO);
+            return new ResponseEntity<>(genericResponseDTO, HttpStatus.BAD_REQUEST);
+        }
+
+
+        genericResponseDTO.setMessage("Kyc upgrade failed!");
+        genericResponseDTO.setCode("Failed");
+        genericResponseDTO.setData(upgradeKYCLevelDTO);
+        return new ResponseEntity<>(genericResponseDTO, HttpStatus.BAD_REQUEST);
+    }
 
 
 
