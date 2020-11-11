@@ -1,13 +1,11 @@
 package ng.com.systemspecs.apigateway.service.impl;
 
 import ng.com.systemspecs.apigateway.client.InlineStatusResponse;
+import ng.com.systemspecs.apigateway.service.ProfileService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.domain.WalletAccount;
 import ng.com.systemspecs.apigateway.repository.WalletAccountRepository;
-import ng.com.systemspecs.apigateway.service.dto.FundDTO;
-import ng.com.systemspecs.apigateway.service.dto.PaymentResponseDTO;
-import ng.com.systemspecs.apigateway.service.dto.PaymentTransactionDTO;
-import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
+import ng.com.systemspecs.apigateway.service.dto.*;
 import ng.com.systemspecs.apigateway.service.kafka.producer.TransProducer;
 import ng.com.systemspecs.apigateway.service.mapper.WalletAccountMapper;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -48,11 +46,14 @@ public class WalletAccountServiceImpl implements WalletAccountService {
     private PaymentResponseDTO responseDTO;
     private boolean status = false;
 
+    ProfileService profileService;
+
     public WalletAccountServiceImpl(WalletAccountRepository walletAccountRepository,
-			WalletAccountMapper walletAccountMapper,TransProducer producer) {
+			WalletAccountMapper walletAccountMapper,TransProducer producer, ProfileService profileService) {
 		this.walletAccountRepository = walletAccountRepository;
 		this.walletAccountMapper = walletAccountMapper;
 		this.producer = producer;
+		this.profileService = profileService;
 
 	}
 
@@ -94,43 +95,58 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
 	@Override
 	public ResponseEntity<PaymentResponseDTO> fund(FundDTO fundDTO) {
-	    responseDTO = new PaymentResponseDTO();
+        responseDTO = new PaymentResponseDTO();
 
-        //if channel is #wallet to wallet
-        if (fundDTO.getChannel().equalsIgnoreCase("wallettowallet")){
-            // and if the currentWallet balance is >= amount
-            WalletAccount sourceAccount = findOneByAccountNumber(Long.valueOf(fundDTO.getSourceAccountNumber()));
-            Double currentBalance = sourceAccount.getCurrentBalance();
-            if (currentBalance >= fundDTO.getAmount()){
-                // send FundDTO to kafka consumer
-                producer.send(fundDTO);
-                buildPaymentResponseDTO(false, "Transaction Successful!");
-            } else {
-                buildPaymentResponseDTO(true, "Insufficient fund!");
-            }
+        String phoneNumber = "";
 
-        }else if (fundDTO.getChannel().equalsIgnoreCase("banktowallet")){
-            //get transRef
-            String transRef = fundDTO.getTransRef();
-            //Verify the transaction using transRef
-            boolean isVerified = verifyTransaction(transRef);
-            //if success, return PaymentSuccessDTO
-            if (isVerified){
-                // and send FundDTO to kafka consumer
-                producer.send(fundDTO);
-
-                //return response to the client
-                buildPaymentResponseDTO(false, "Funding successful");
-            }else {
-                buildPaymentResponseDTO(true, "cannot verify transaction");
-            }
-
-        }
-        if (status) {
-            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        Optional<ProfileDTO> currentUser = profileService.findByUserIsCurrentUser();
+        if (currentUser.isPresent()) {
+            ProfileDTO profileDTO = currentUser.get();
+            phoneNumber = profileDTO.getPhoneNumber();
         }
 
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK );
+        if (profileService.canAccummulateOnAccount(phoneNumber, Long.valueOf(fundDTO.getSourceAccountNumber()), fundDTO.getAmount())) {
+            //if channel is #wallet to wallet
+            if (fundDTO.getChannel().equalsIgnoreCase("wallettowallet")) {
+                // and if the currentWallet balance is >= amount
+                WalletAccount sourceAccount = findOneByAccountNumber(Long.valueOf(fundDTO.getSourceAccountNumber()));
+                Double currentBalance = sourceAccount.getCurrentBalance();
+                if (currentBalance >= fundDTO.getAmount()) {
+                    // send FundDTO to kafka consumer
+                    producer.send(fundDTO);
+                    buildPaymentResponseDTO(false, "Transaction Successful!");
+                } else {
+                    buildPaymentResponseDTO(true, "Insufficient fund!");
+                }
+
+            } else if (fundDTO.getChannel().equalsIgnoreCase("banktowallet")) {
+                //get transRef
+                String transRef = fundDTO.getTransRef();
+                //Verify the transaction using transRef
+                boolean isVerified = verifyTransaction(transRef);
+                //if success, return PaymentSuccessDTO
+                if (isVerified) {
+                    // and send FundDTO to kafka consumer
+                    producer.send(fundDTO);
+
+                    //return response to the client
+                    buildPaymentResponseDTO(false, "Funding successful");
+                } else {
+                    buildPaymentResponseDTO(true, "cannot verify transaction");
+                }
+
+            }
+
+            //TODO
+            if (status) {
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        }
+        buildPaymentResponseDTO(true, "Daily fund quota exceeded");
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 	}
 
     private void buildPaymentResponseDTO(boolean hasError, String message)  {
@@ -184,50 +200,37 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
     @Override
 	public PaymentResponseDTO sendMoney(FundDTO sendMoneyDTO) {
-		PaymentResponseDTO responseDTO = new PaymentResponseDTO();
-		PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
-		WalletAccount account = walletAccountRepository.findOneByAccountNumber(Long.parseLong(sendMoneyDTO.getSourceAccountNumber()));
+        PaymentResponseDTO responseDTO = new PaymentResponseDTO();
 
-		if (account.getCurrentBalance() < sendMoneyDTO.getAmount()) {
-			responseDTO.setError(true);//
-			responseDTO.setCode("failed");
-			responseDTO.setMessage("Insufficient Fund");
-			return responseDTO;
-		}
+        String phoneNumber = "";
 
-		Random random = new Random();
+        Optional<ProfileDTO> currentUser = profileService.findByUserIsCurrentUser();
+        if (currentUser.isPresent()) {
+            ProfileDTO profileDTO = currentUser.get();
+            phoneNumber = profileDTO.getPhoneNumber();
+        }
 
-		String generatedString = random.ints(97, 122 + 1).limit(15)
-				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
+        if (profileService.canSpendOnAccount(phoneNumber, Long.valueOf(sendMoneyDTO.getSourceAccountNumber()), sendMoneyDTO.getAmount())) {
+            //PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
+            WalletAccount account = walletAccountRepository.findOneByAccountNumber(Long.parseLong(sendMoneyDTO.getSourceAccountNumber()));
 
-		account.setCurrentBalance(account.getCurrentBalance() - sendMoneyDTO.getAmount());
-		account = walletAccountRepository.save(account);
-		responseDTO.setMessage("Transaction Successful");
-		responseDTO.setCode("00");
+            if (account.getCurrentBalance() < sendMoneyDTO.getAmount()) {
+                responseDTO.setError(true);//
+                responseDTO.setCode("failed");
+                responseDTO.setMessage("Insufficient Fund");
+                return responseDTO;
+            }
+            responseDTO.setCode("00");
+            responseDTO.setMessage("Fund Successfully Sent");
+            producer.send(sendMoneyDTO);
+            return responseDTO;
 
-		account.setCurrentBalance(account.getCurrentBalance() + sendMoneyDTO.getAmount());
-		account = walletAccountRepository.save(account);
-		paymentTransactionDTO.setAmount(BigDecimal.valueOf(sendMoneyDTO.getAmount()));
-		paymentTransactionDTO.setChannel(sendMoneyDTO.getChannel());
-		paymentTransactionDTO.setDestinationAccount(String.valueOf(sendMoneyDTO.getAccountNumber()));
-		paymentTransactionDTO.setSourceAccount(sendMoneyDTO.getSourceAccountNumber());
-		paymentTransactionDTO.setDestinationNarration("Send Money from the Wallet "+account.getAccountName()+
-				"( "+account.getAccountNumber()+" )");
-		paymentTransactionDTO.setPaymenttransID(System.currentTimeMillis());
-		paymentTransactionDTO.setSourceAccountBankCode(sendMoneyDTO.getSourceBankCode());
-		paymentTransactionDTO.setTransactionRef(generatedString);
-		String phoneNumber = null;
+        }
 
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(principal instanceof UserDetails) {
-			phoneNumber = ((UserDetails)principal).getUsername();
-		}else
-			phoneNumber = principal.toString();
-		paymentTransactionDTO.setTransactionOwnerPhoneNumber(phoneNumber);
-		responseDTO.setPaymentTransactionDTO(paymentTransactionDTO);
-
-		producer.send(responseDTO);
-		return responseDTO;
+        responseDTO.setError(true);
+        responseDTO.setCode("failed");
+        responseDTO.setMessage("Maximum send quota reached");
+        return responseDTO;
 	}
 
 	@Override
