@@ -47,7 +47,11 @@ public interface ProfileService {
      * @param id the id of the entity.
      */
     void delete(Long id);
-    
+
+    Optional<ProfileDTO> findByUserIsCurrentUser();
+
     Optional<ProfileDTO> findOneByPhoneNumber(String phoneNumber);
     Profile findByPhoneNumber(String phoneNumber);
+    Boolean canSpendOnAccount(String phoneNumber,Long accountNumber,Double amount);//for send Money "Your daily spend quota has been exceeded"
+    Boolean canAccummulateOnAccount(String phoneNumber,Long accountNumber,Double amount); // for fending
 }

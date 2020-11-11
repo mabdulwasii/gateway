@@ -4,22 +4,16 @@ import ng.com.systemspecs.apigateway.client.ExternalRESTClient3;
 import ng.com.systemspecs.apigateway.domain.Address;
 import ng.com.systemspecs.apigateway.domain.Kyclevel;
 import ng.com.systemspecs.apigateway.domain.Profile;
-import ng.com.systemspecs.apigateway.domain.ProfileType;
 import ng.com.systemspecs.apigateway.domain.User;
 import ng.com.systemspecs.apigateway.domain.enumeration.Gender;
 import ng.com.systemspecs.apigateway.repository.UserRepository;
 import ng.com.systemspecs.apigateway.service.AddressService;
-import ng.com.systemspecs.apigateway.service.KyclevelService;
 import ng.com.systemspecs.apigateway.service.ProfileService;
-import ng.com.systemspecs.apigateway.service.ProfileTypeService;
 import ng.com.systemspecs.apigateway.service.WalletAccountService;
 import ng.com.systemspecs.apigateway.web.rest.errors.BadRequestAlertException;
 import ng.com.systemspecs.apigateway.web.rest.errors.InvalidPasswordException;
 import ng.com.systemspecs.apigateway.web.rest.vm.ManagedUserVM;
 import ng.com.systemspecs.apigateway.service.dto.AddressDTO;
-
-import ng.com.systemspecs.apigateway.service.dto.BecomeAnAgentDTO;
-
 import ng.com.systemspecs.apigateway.service.dto.FingerDTO;
 import ng.com.systemspecs.apigateway.service.dto.NinFingerPrintDTO;
 import ng.com.systemspecs.apigateway.service.dto.OTPDTO;
@@ -30,7 +24,6 @@ import ng.com.systemspecs.apigateway.service.dto.ProfileDTO;
 import ng.com.systemspecs.apigateway.service.dto.RegisterCompleteResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.RegistrationLastPageDTO;
 import ng.com.systemspecs.apigateway.service.dto.RespondDTO;
-import ng.com.systemspecs.apigateway.service.dto.ResponseDTO;
 import ng.com.systemspecs.apigateway.service.dto.WalletAccountDTO;
 import ng.com.systemspecs.apigateway.service.validation.LastPageValidation;
 import io.github.jhipster.web.util.HeaderUtil;
@@ -83,36 +76,24 @@ public class ProfileResource {
     private static long Upper_Bond = 90000000000L;
 
     private static final String ENTITY_NAME = "profile";
-	 
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
     private final ProfileService profileService;
     private final WalletAccountService walleAccountService;
     private final AddressService addressService;
     private final UserRepository userRepository;
-
-    private final KyclevelService kyclevelService;
-    private final ProfileTypeService profileTypeService;
     private final PasswordEncoder passwordEncoder;
 	private final ExternalRESTClient3  externalRESTClient3;
-	 
-	 
+
 
     public ProfileResource(ProfileService profileService,WalletAccountService walleAccountService,
-
-    		UserRepository userRepository,
-    		AddressService addressService,KyclevelService kyclevelService,
-    		ProfileTypeService profileTypeService,PasswordEncoder passwordEncoder,
-    		ExternalRESTClient3  externalRESTClient3) {
-
-
+    		UserRepository userRepository, PasswordEncoder passwordEncoder,
+    		AddressService addressService, ExternalRESTClient3  externalRESTClient3) {
 		this.profileService = profileService;
         this.walleAccountService = walleAccountService;
         this.addressService=addressService;
         this.userRepository = userRepository;
-
-        this.kyclevelService=kyclevelService;
-        this.profileTypeService=profileTypeService;
         this.passwordEncoder = passwordEncoder;
 		this.externalRESTClient3 = externalRESTClient3;
     }
@@ -208,7 +189,7 @@ public class ProfileResource {
         profileService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
-    
+
     @PostMapping("/lastpage")
     public ResponseEntity<RegisterCompleteResponseDTO<WalletAccountDTO>>  updateAccount(@Valid @RequestBody RegistrationLastPageDTO lastPageDTO,HttpSession session) {
     	LastPageValidation validate = new LastPageValidation(lastPageDTO);
@@ -226,7 +207,7 @@ public class ProfileResource {
     		theUser.setEmail(lastPageDTO.getEmail());
     		userRepository.save(theUser);
     	});
-    	
+
     	//User user = UserRepository
     	//profile.setAddress(profileDTO.getAddress());
     	AddressDTO addressDTO = new AddressDTO();
@@ -236,13 +217,10 @@ public class ProfileResource {
     	addressDTO.setAddressOwner(profile);
     	addressService.save(addressDTO);
     	profile.setDateOfBirth(lastPageDTO.getDateOfBirth());
-    	Kyclevel kyclevel = kyclevelService.findByKycLevel(1);
-    	ProfileType profileType = profileTypeService.findByProfiletype("Customer");
-    	profile.setProfileType(profileType);
+    	profile.setKyc(null);
     	profile.setProfileID("3");
-    	profile.setKyc(kyclevel);
     	profile.setGender(Gender.valueOf(lastPageDTO.getGender()));
-        profile = profileService.save(profile);
+
     	WalletAccountDTO walletAccountDTO = new WalletAccountDTO();
     	walletAccountDTO.setAccountNumber(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond));
     	walletAccountDTO.setAccountOwnerPhoneNumber(profile.getPhoneNumber());
@@ -255,10 +233,10 @@ public class ProfileResource {
     	ResponseDTO.setMessage("Registeration successfull");
     	ResponseDTO.setWallet(wallet);
 		return new ResponseEntity<>(ResponseDTO, new HttpHeaders(), HttpStatus.OK);
-    }   
+    }
 	/*
 	 * @PostMapping("/updatewithphonenumber")
-	 * 
+	 *
 	 * @ResponseStatus(HttpStatus.ACCEPTED) public void
 	 * updateProfileWithPhoneNumber(@Valid @RequestBody ProfileDTO profileDTO) {
 	 * Profile profile =
@@ -267,10 +245,10 @@ public class ProfileResource {
 	 * profile.setDateOfBirth(profileDTO.getDateOfBirth()); profile.setKyc(null);
 	 * profile.setGender(Gender.valueOf(profileDTO.getGender()));
 	 * profile=profileService.save(profile);
-	 * 
+	 *
 	 * }
 	 */
-    
+
     @PostMapping("/pin")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<PostResponseDTO> createUpdatePin(@Valid @RequestBody PinDTO pinDTO,HttpSession session) {
@@ -285,7 +263,7 @@ public class ProfileResource {
     		postResponseDataDTO.setDescription("section authentication failed");
         	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
 			return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
-    	} 
+    	}
     	if(Strings.isEmpty(pinDTO.getPin())) {
     		postResponseDTO.setMessage("unable to validate user");
     		postResponseDataDTO.setCode("10");
@@ -305,7 +283,7 @@ public class ProfileResource {
     	postResponseDTO.setPostResponseDataDTO(postResponseDataDTO);
 
 		return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.OK);
-    }    
+    }
     @PostMapping("/verify-otp")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<PostResponseDTO> verifyOTP(@Valid @RequestBody OTPDTO otpDTO,HttpSession session) {
@@ -335,61 +313,35 @@ public class ProfileResource {
 
 		return new ResponseEntity<>(postResponseDTO, new HttpHeaders(), HttpStatus.OK);
 
-    		
-    } 
+
+    }
     @GetMapping("/regStage")
     public String getMyRegStage(HttpSession session) {
     	String phoneNumber = (String) session.getAttribute("phoneNumber");
     	Profile profile = profileService.findByPhoneNumber(phoneNumber);
     	return profile.getProfileID();
-
-    }    
-    
-    @PostMapping("/become_an_agent")
-    public ResponseEntity<ResponseDTO>  becomeAnAgent(@Valid @RequestBody BecomeAnAgentDTO becomeAnAgentDTO,HttpSession session) {
-    	ResponseDTO responseDTO = new ResponseDTO();
-    	if(Strings.isEmpty(becomeAnAgentDTO.getBvn())) {
-    		return new ResponseEntity<ResponseDTO>(responseDTO, new HttpHeaders(), HttpStatus.EXPECTATION_FAILED);
-    	}
-    	String phoneNumber = (String) session.getAttribute("phoneNumber");
-    	Profile profile = profileService.findByPhoneNumber(phoneNumber);
-    	ProfileType profileType = profileTypeService.findByProfiletype("Agent");
-    	profile.setProfileType(profileType);
-    	profile.setProfileID("4");
-        profile = profileService.save(profile);
-    	WalletAccountDTO walletAccountDTO = new WalletAccountDTO();
-    	walletAccountDTO.setAccountNumber(ThreadLocalRandom.current().nextLong(Lower_Bond,Upper_Bond));
-    	walletAccountDTO.setAccountOwnerPhoneNumber(profile.getPhoneNumber());
-    	walletAccountDTO.setAccountOwnerId(profile.getId());
-    	walletAccountDTO.setAccountName(profile.getUser().getFirstName());
-    	walletAccountDTO.setDateOpened(LocalDate.now());
-    	walletAccountDTO.setCurrentBalance(0.0);
-    	walletAccountDTO.setSchemeId(1L);
-    	walletAccountDTO.setWalletAccountTypeId(2L);
-    	WalletAccountDTO wallet = walleAccountService.save(walletAccountDTO);
-    	responseDTO.setMessage("Migration to Agent successfull");
-    	responseDTO.setTrasactionReference(wallet.getAccountOwnerPhoneNumber());
-		return new ResponseEntity<ResponseDTO>(responseDTO, new HttpHeaders(), HttpStatus.OK);
-    }   
+    }
 
 
-	
-	
-  
+
+
+
     @PostMapping(value = "/referencedataninandfingerprint")
     public  Object  getFingerPrintData(@RequestBody  NinFingerPrintDTO  ninFingerPrintDTO) {
     	String base64StringData = "";
        String refId = "nimcDetailsByNin";
  	   String  authCode = "67777777";
- 	   String secretKey = "610a64055d214207ee638c1dd7c610b1751dcc0510563fdc52c0a4f9f8e36e275c686c6cbae1ea4e636131a265f20f07e8d610a4733f4df974c0f915465048a1"; 	  
+ 	   String secretKey = "610a64055d214207ee638c1dd7c610b1751dcc0510563fdc52c0a4f9f8e36e275c686c6cbae1ea4e636131a265f20f07e8d610a4733f4df974c0f915465048a1";
  	  String signature = "cac9b29a138c039b8e761293c258a999740bc144638b8582c3c4d9cf11ec96792075097eaa44c7f435b9eae831a6d5175f47ecea27fa5fcaed591d12d44410b8";
     	Map<String,String> headers  =  new java.util.HashMap<>();
 	   headers.put("X-API-PUBLIC-KEY", "QzAwMDAxMTU0MDF8MTUwOTM3NzUwMjMzNXw2MGFmMDZjYTk4ZWYwNzgyMjIzMDQ5MTY4MmZhMWYwODFlMTAwODg3NDczMzRkYjFjNWQ5MGMzZmM5ZDQwNDEyMmQ1ZThhZjAwM2YyMmU5ZDA1ZjZkM2QyNTg3OWYyZDFhMDRlYjE4NDM3MjVhODYwOGYxMjdhYmJmNzRkYmQwMA");
-	  
-	   headers.put("X-API-SIGNATURE",signature); 
+
+	   headers.put("X-API-SIGNATURE",signature);
    	   	return  externalRESTClient3.getFingerPrintData(headers,ninFingerPrintDTO);
-      
+
  }
-    
- 
+
+
+
+
 }
